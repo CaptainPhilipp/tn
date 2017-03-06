@@ -25,6 +25,4 @@ properties << " прямоугольный"  if a**2 + b**2 == c**2
 properties << " равнобедренный" if sides.uniq.size == 2 # странный способ узнать кол-во равных сторон
 properties << " равносторонний" if sides.uniq.size == 1
 
-puts properties.to_s
-
 puts "Это#{properties * ','} треугольник"
