@@ -34,4 +34,4 @@ end
 
 root_msgs = ["корень: ", "корни: ", "корней нет"]
 msg = root_msgs[d<=>0]
-puts "Дискриминант: #{d}, #{msg}#{roots.join ' и '}."
+puts "Дискриминант: #{d}, #{msg}#{roots * ' и '}."
