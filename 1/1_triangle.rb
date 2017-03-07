@@ -5,17 +5,13 @@
 # зная его основание (a) и высоту (h) по формуле: 1/2*a*h.
 # Программа должна запрашивать основание и высоту треуголиника и возвращать его площадь.
 puts "Введите основание и высоту треугольника через пробел"
-line = gets.chomp.split(' ').map(&:to_f).reject(&:zero?)
-size = line.size
-
-e_msg = ->(many, count){ "Слишком #{many} данных (#{count}); " +
-                         "0 и символы не считаются за ввод" }
-
-raise e_msg.call("много", size) if size > 2
-raise e_msg.call("мало", size)  if size < 2
+line = gets.chomp
+raise "Только цифры и пробелы!" unless line =~ /[0-9 ]/i
+line = line.split(' ').map(&:to_f).reject(&:zero?)
+raise "Неверный формат" unless line.size == 2
 
 a, h = *line
 
 s = 0.5 * a * h
 
-puts "Площадь треугольника в высотой #{h} и основанием #{a}, равна #{s}"
+puts "Площадь треугольника с основанием #{a} и высотой #{h}, равна #{s}"
