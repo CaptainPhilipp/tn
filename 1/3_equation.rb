@@ -8,8 +8,8 @@
 puts "Введите три коэфициента (a, b и c) через пробел"
 split = gets.chomp
 
-raise "Только цифры и пробелы!" unless split =~ /^[0-9\s]+$/i
-split = split.split(' ').map &:to_f
+raise "Только цифры и пробелы!" unless split =~ /^[0-9\s\.\,]+$/i
+split = split.split(' ').map { |x| x.gsub(/\,/, ?.).to_f }
 raise "Только три коэффициента!" unless split.size == 3
 raise "'a' не должно быть равно 0" if split.first.zero?
 
