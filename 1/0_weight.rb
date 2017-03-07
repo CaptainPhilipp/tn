@@ -12,7 +12,7 @@ height = 0
 loop do
   puts 'Сообщите Ваш рост'
   height = gets.chomp.to_i
-  break unless height <= 0
+  break if height > 0
   puts 'Укажите свой рост цифрами; Значение не может быть отрицательным, или равным нулю.'
 end
 
