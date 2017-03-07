@@ -12,8 +12,8 @@ height = 0
 loop do
   puts 'Сообщите Ваш рост'
   height = gets.chomp.to_i
-  break unless height.zero?
-  puts 'Укажите реальный рост цифрами'
+  break unless height <= 0
+  puts 'Укажите свой рост цифрами; Значение не может быть отрицательным, или равным нулю.'
 end
 
 ideal_weight = height - 110
