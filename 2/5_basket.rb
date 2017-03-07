@@ -12,24 +12,26 @@
 # купленного товара. Также вывести итоговую сумму за каждый товар.
 # Вычислить и вывести на экран итоговую сумму всех покупок в "корзине".
 
+GoodSt = Struct.new :price, :count, :total
 basket = {}
 loop do
-  puts "Введите название товара (или пустую строку что бы продолжить)"
-  title = gets.chomp
-  break if title == "стоп" || title =~ /stop/i || title.empty?
-  puts "Введите цену товара"
-  price = gets.chomp.to_i
-  puts "Введите кол-во товаров"
-  count = gets.chomp.to_i
-  basket[title] = {price: price, count: count, total: count * price}
+  # в одну строку удобнее вводить. в первом коммите по этому файлу раздельный ввод.
+  puts "Введите название товара, цену и количество, или пустую строку что бы продолжить"
+  string = gets.chomp.split ' '
+  raise "Неверное количество аргументов" unless (2..3).include?(string.size) || string.empty?
+  title = string.shift
+  break if title.nil? || title == "стоп"
+  price, count = *string.map(&:to_f)
+  count ||= 1
+  basket[title] = GoodSt.new price, count, count * price
 end
 
 raise "Basket is empty" if basket.empty?
 
 summ = 0
 basket.each do |title, h|
-  puts " > #{title}: количество #{h[:count]}, цена:#{h[:price]}, сумма:#{h[:total]}"
-  summ += h[:total]
+  puts " > #{title}: ".ljust(17) + "количество: #{h.count},".ljust(17) + "сумма: #{h.total}"
+  summ += h.total
 end
 
-puts "   Сумма покупки: #{summ}"
+puts "\n   Сумма покупки: #{summ}\n\n"
