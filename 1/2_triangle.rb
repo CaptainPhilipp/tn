@@ -10,9 +10,8 @@
 # что треугольник еще и равнобедренный.
 
 puts "Введите длины трех сторон треугольника через пробел"
-sides = gets.chomp.split(' ').map(&:to_f).reject(&:zero?)
-raise "Неверные данные" unless sides.size == 3
-
+sides = gets.chomp.split(' ').map(&:to_f).reject { |x| x <= 0 }
+raise "Неверные данные: введены буквы, или цифры <= 0" unless sides.size == 3
 a, b, c = sides.sort
 
 properties = []
