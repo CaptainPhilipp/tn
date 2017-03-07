@@ -14,15 +14,9 @@ sides = gets.chomp.split(' ').map(&:to_f).reject { |x| x <= 0 }
 raise "Неверные данные: введены буквы, или цифры <= 0" unless sides.size == 3
 a, b, c = sides.sort
 
-eqlity = ->(sides, *args) {
-  args.each do |a|
-
-  end
-}
-
-def equality(eq, *sides)
+def equality(count, *sides)
   # треугольник равносторонний != равнобедренный, потому '=='. иначе '>='
-  sides.each { |a| return true if sides.count{ |x| x == a } == eq }; false
+  sides.each { |a| return true if sides.count{ |x| x == a } == count }; false
 end
 
 properties = []
