@@ -1,5 +1,3 @@
-require 'date'
-
 # Заданы три числа, которые обозначают число, месяц, год (запрашиваем у пользователя).
 # Найти порядковый номер даты, начиная отсчет с начала года.
 # Учесть, что год может быть високосным.
@@ -7,22 +5,27 @@ require 'date'
 # вроде Date#yday или Date#leap?)
 # Алгоритм опредления високосного года: www.adm.yar.ru
 
-puts "Введите число, месяц, год"
-answer = gets.chomp.split(' ').map(&:to_f)
-raise "не-а" unless answer.size == 3
-day, month, year = answer
-raise "wrong date" unless (0..31).include?(day) || (1..12).include?(month)
-
-leap = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)
-days_in = Hash.new do |h, m| # days_in[month]
- h[m] = 28 + (m + (m / 8).floor) % 2 + 2 % m + 2 * (1 / m).floor
- h[m] += 1 if m == 2 if leap
+def leap?(year)
+  year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)
 end
 
-days_in[month]
-current_days = days_in[month]
-raise "wrong day" if day > current_days
+def days_in_month(month, year)
+  counts = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] # 0 что бы убрать лишний if
 
-at_end = (0..month).to_a.inject { |memo, m| days_in[m]; memo + days_in[m] }
+  counts[month] + ( month == 2 && leap?(year) ? 1 : 0 )
+end
 
-puts (at_end - (current_days - day)).to_i
+puts "Введите число, месяц, год"
+answer = gets.chomp.split(' ').map(&:to_i)
+raise "не-а" unless answer.size == 3
+day, month, year = answer
+raise "wrong month" unless (1..12).include? month
+raise "wrong day"   unless (1..days_in_month(month, year)).include? day
+
+dayscount = day
+(1..month).each do |month|
+  previous_month = month - 1
+  dayscount += days_in_month(previous_month, year)
+end
+
+puts dayscount

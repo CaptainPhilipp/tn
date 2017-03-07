@@ -1,4 +1,6 @@
  # Заполнить хеш гласными буквами,
  # где значением будет являтся порядковый номер буквы в алфавите (a - 1).
-letters = Hash.new { |h, k| h[k] = k.ord - 96 }
-(97..122).each {|i| letters[i.chr] if i.chr =~ /[aeiou]/}
+alphabet = ('a'..'z').to_a
+vovels = {}
+alphabet.each_with_index { |letter, i| vovels[letter] = i + 1 }
+puts vovels
