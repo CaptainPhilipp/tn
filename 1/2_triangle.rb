@@ -14,9 +14,21 @@ sides = gets.chomp.split(' ').map(&:to_f).reject { |x| x <= 0 }
 raise "Неверные данные: введены буквы, или цифры <= 0" unless sides.size == 3
 a, b, c = sides.sort
 
+eqlity = ->(sides, *args) {
+  args.each do |a|
+
+  end
+}
+
+def equality(eq, *sides)
+  # треугольник равносторонний != равнобедренный, потому '=='. иначе '>='
+  sides.each { |a| return true if sides.count{ |x| x == a } == eq }; false
+end
+
 properties = []
 properties << " прямоугольный"  if a**2 + b**2 == c**2
-properties << " равнобедренный" if sides.uniq.size == 2 # странный способ узнать кол-во равных сторон
-properties << " равносторонний" if sides.uniq.size == 1
+properties << " равнобедренный" if equality 2, a, b, c
+properties << " равносторонний" if equality 3, a, b, c
 
 puts "Это#{properties * ','} треугольник"
+puts 'Совершенно точно.' if properties.empty?
