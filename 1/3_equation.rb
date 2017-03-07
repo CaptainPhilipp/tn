@@ -18,19 +18,15 @@ split = gets.chomp
 raise "Только цифры и пробелы!" unless split =~ /[0-9\s]/i
 split = split.split(' ').map &:to_f
 raise "Только три коэффициента!" unless split.size == 3
-raise "a != 0" if split.first.zero?
+raise "'a' не должно быть равно 0" if split.first.zero?
 
 a, b, c = *split
 d = b**2 - 4 * a * c
 equation_roots = ->(meth) { (-b.send(meth, Math.sqrt(d))) / (2 * a) }
 
 roots = []
-if d > 0
-  roots << equation_roots.call(:+)
-  roots << equation_roots.call(:-)
-elsif d == 0
-  roots << equation_roots.call(:+)
-end
+roots << equation_roots.call(:+) if d >= 0
+roots << equation_roots.call(:-) if d >  0
 
 root_msgs = ["корень: ", "корни: ", "корней нет"]
 msg = root_msgs[d<=>0]
