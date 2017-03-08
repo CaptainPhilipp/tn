@@ -24,15 +24,31 @@ module Trailroad
     end
 
     def speed_up(amount = 1)
-      @speed += @speed + amount.abs > @max_speed ? @max_speed : amount.abs
+      speed, amount = speed.abs, amount.abs # в такой ситуации мульти можно?
+      if @reverse # если движение назад
+        @speed -= (speed + amount < @max_speed) ? @max_speed / -4 : amount
+      else
+        @speed += (speed + amount > @max_speed) ? @max_speed : amount
+      end
     end
 
     def slow_down(amount = 1)
-      @speed -= @speed - amount.abs < 0 ? 0 : amount.abs
+      speed, amount = speed.abs, amount.abs # в такой ситуации мульти можно?
+      if @reverse # если движение назад
+        @speed += (speed - amount > 0) ? 0 : amount
+      else
+        @speed -= (speed - amount < 0) ? 0 : amount
+      end
     end
 
     def brake
       @speed = 0
+    end
+
+    def switch_reverse
+      return false unless stop?
+      @reverse = @reserse ? false : true
+      true
     end
 
     def add_wagon
