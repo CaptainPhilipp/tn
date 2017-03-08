@@ -12,13 +12,7 @@ module Trailroad
   # + Может перемещаться между станциями, указанными в маршруте.
   # + Показывать предыдущую станцию, текущую, следующую, на основе маршрута
   class Train
-    include Trailroad::TrainRoute
-    getter :number, :type, :wagons, :speed, :route, :current_station
-    # можно ли дублировать метод геттер в модуль? не приходилось никогда
-    #
-    # То есть можно ли перенести, например, 'getter :route, :current_station'
-    # в другой модуль, тут удалив лишнее имена методов?
-    # это выглядит логично и удобно, но можно ли?
+    attr_reader :number, :type, :wagons, :speed, :route, :current_station
 
     def initialize(number, train_type, wagons, max_speed = 120)
       @number    = number
@@ -30,31 +24,17 @@ module Trailroad
     end
 
     def speed_up(amount = 1)
-      speed, amount = speed.abs, amount.abs # в такой ситуации мульти можно?
-      if @reverse # если движение назад
-        @speed -= (speed + amount < @max_speed) ? @max_speed / -4 : amount
-      else
-        @speed += (speed + amount > @max_speed) ? @max_speed : amount
-      end
+      speed, amount = @speed.abs, amount.abs
+      @speed = (speed + amount > @max_speed) ? @max_speed : @speed + amount
     end
 
     def slow_down(amount = 1)
-      speed, amount = speed.abs, amount.abs # в такой ситуации мульти можно?
-      if @reverse # если движение назад
-        @speed += (speed - amount > 0) ? 0 : amount
-      else
-        @speed -= (speed - amount < 0) ? 0 : amount
-      end
+      speed, amount = @speed.abs, amount.abs
+      @speed = (speed - amount < 0) ? 0 : @speed - amount
     end
 
     def brake
       @speed = 0
-    end
-
-    def switch_reverse
-      return false unless stop?
-      @reverse = @reserse ? false : true
-      true
     end
 
     def add_wagon
@@ -65,6 +45,55 @@ module Trailroad
     def remove_wagon
       return false unless stop?
       @wagons -= 1
+    end
+
+    #
+    # Route's & Station's
+    #
+
+    def route=(route)
+      raise "Wrong argument" unless route.is_a? Route
+      @route = route
+      @current_station = route.departure
+      @current_station_id = 0
+    end
+
+    def next_station
+      route.all_stations[@current_station_id + 1]
+    end
+
+    def prev_station
+      route.all_stations[@current_station_id - 1]
+    end
+
+    def leave_station
+      current_station.train_departure self
+      # менять @current_station не буду, ибо сейчас особо незачем,
+      # а спорные моменты создаст
+    end
+
+    def arrived_to(station)
+      station = route.all_stations[station] if station.is_a? Integer
+      station.train_incoming self
+    end
+
+    # перемещение моментально
+    def go_to_station(station_id)
+      leave_station
+      arrived_to station_id
+
+      @current_station_id = station_id
+      @current_station    = route.all_stations[station_id]
+    end
+
+    def go_to_next_station
+      return false if @current_station_id == route.all_stations.size - 1
+      go_to_station @current_station_id + 1
+    end
+
+    def go_to_prev_station
+      return false if @current_station_id.zero?
+      go_to_station @current_station_id - 1
     end
 
     private
