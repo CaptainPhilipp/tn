@@ -5,43 +5,24 @@ module Trailroad
   # + Может удалять промежуточную станцию из списка
   # + Может выводить список всех станций по-порядку от начальной до конечной
   class Route
-    attr_reader :departure, :stations, :destination
+    attr_reader :stations
 
-    def initialize(departure, destination, *stations)
-      [departure, destination, *stations].each { |s| raise unless s.is_a? Station }
-
-      @departure   = departure
-      @destination = destination
-      @stations    = stations
+    def initialize(*stations)
+      raise unless stations.all? { |s| s.is_a? Station }
+      @stations = stations
     end
 
-    def add_station(new_station, position = nil)
-      reload_all_stations_memo
-      if position.nil?
-        @stations[position, 0] = new_station
-      else
-        @stations << new_station
-      end
+    def add_station(position = -2, *new_stations)
+      @stations.insert position, *new_stations
     end
 
     def remove_station(rm_station = nil)
-      reload_all_stations_memo
       case
-      when rm_station.is_a?(Integer) then @station.delete_at rm_station
-      when rm_station.is_a?(Station) then @station.delete    rm_station
-      when rm_station.nil?           then @stations.shift
+      when Integer then @station.delete_at rm_station
+      when Station then @station.delete    rm_station # TODO удалять по name, а не object_id
+      when Nil     then @stations.shift
       else raise "Wrong argument"
       end
-    end
-
-    def all_stations
-      @all_stations_memo ||= [@departure, *@stations, @destination]
-    end
-
-    private
-
-    def reload_all_stations_memo
-      @all_stations_memo = nil
     end
   end # Route
 end

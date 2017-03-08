@@ -19,21 +19,15 @@ module Trailroad
 
     alias new_train train_incoming # как полагается удобнее располагать алиасы?
 
-    def train_departure(train)
-      raise "Wrong argument" unless train.nil? || train.is_a?(Train)
-      train ? @trains.delete(train) : @trains.shift
+    def train_departure(train = nil)
+      @trains.delete train
     end
 
     alias remove_train train_departure
 
-    TrainsList = Struct.new :trains, :count
     # список поездов на станции по типу: кол-во грузовых, пассажирских
     def trains_by_type(type)
-      list = TrainsList.new [], 0
-      @trains.select{ |t| t.type == type }.each do |train|
-        list[:trains] << train
-        list[:count]  += 1
-      end
+      @trains.select{ |t| t.type == type }
     end
   end # Station
 end

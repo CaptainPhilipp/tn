@@ -41,7 +41,7 @@ print "\n #go_to_next_station"
 train.go_to_next_station
 print "\n > current station: #{train.current_station.name}"
 print "\n > prev station: #{train.prev_station.name}"
-print "\n > destination: #{train.route.destination.name}\n"
+print "\n > destination: #{train.route.stations.last.name}\n"
 
 st = train.current_station
 print "\n > station_trains: #{st.trains_by_type('cargo').map(&:number)}\n"
