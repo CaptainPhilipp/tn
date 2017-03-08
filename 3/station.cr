@@ -13,14 +13,14 @@ module Trailroad
     end
 
     def train_incoming(train)
-      raise unless train.is_a? Train
+      raise "Wrong argument" unless train.is_a? Train
       @trains << train
     end
 
     alias new_train train_incoming # как полагается удобнее располагать алиасы?
 
     def train_departure(train = nil)
-      raise unless train.nil? || train.is_a?(Train)
+      raise "Wrong argument" unless train.nil? || train.is_a?(Train)
       train ? @trains_delete(train) : @trains.shift
     end
 

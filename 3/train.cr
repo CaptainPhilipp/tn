@@ -46,7 +46,7 @@ module Trailroad
     end
 
     def route=(route)
-      raise unless route.is_a? Route
+      raise "Wrong argument" unless route.is_a? Route
       @route = route
       @current_station = route.departure
       @current_station_id = 0

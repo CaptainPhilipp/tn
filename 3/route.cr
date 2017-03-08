@@ -16,12 +16,12 @@ module Trailroad
     end
 
     def add_station(new_station, position = nil)
-      @all_stations_memo = nil
+      reload_all_stations_memo
       position ? @stations[position, 0] = new_station : @stations << new_station
     end
 
     def remove_station(rm_station = nil)
-      @all_stations_memo = nil
+      reload_all_stations_memo
       case
       when rm_station.is_a? Integer then @station.delete_at rm_station
       when rm_station.is_a? Station then @station.delete    rm_station
@@ -32,6 +32,12 @@ module Trailroad
 
     def all_stations
       @all_stations_memo ||= [@departure, *@stations, @destination]
+    end
+
+    private
+
+    def reload_all_stations_memo
+      @all_stations_memo = nil
     end
   end # Route
 end
