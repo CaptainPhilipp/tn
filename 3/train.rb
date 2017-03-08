@@ -12,7 +12,13 @@ module Trailroad
   # + Может перемещаться между станциями, указанными в маршруте.
   # + Показывать предыдущую станцию, текущую, следующую, на основе маршрута
   class Train
+    include Trailroad::TrainRoute
     getter :number, :type, :wagons, :speed, :route, :current_station
+    # можно ли дублировать метод геттер в модуль? не приходилось никогда
+    #
+    # То есть можно ли перенести, например, 'getter :route, :current_station'
+    # в другой модуль, тут удалив лишнее имена методов?
+    # это выглядит логично и удобно, но можно ли?
 
     def initialize(number, train_type, wagons, max_speed = 120)
       @number    = number
@@ -59,50 +65,6 @@ module Trailroad
     def remove_wagon
       return false unless stop?
       @wagons -= 1
-    end
-
-    def route=(route)
-      raise "Wrong argument" unless route.is_a? Route
-      @route = route
-      @current_station = route.departure
-      @current_station_id = 0
-    end
-
-    def all_stations
-      route.all_stations
-    end
-
-    def next_station_id
-      @current_station_id + 1
-    end
-
-    def prev_station_id
-      @current_station_id - 1
-    end
-
-    def next_station
-      all_stations[next_station_id]
-    end
-
-    def prev_station
-      all_stations[prev_station_id]
-    end
-
-    # перемещение моментально
-    def go_to_station(station_id)
-      current_station.train_departure self
-      all_stations[station_id].train_incoming self
-
-      @current_station_id = station_id
-      @current_station    = all_stations[station_id]
-    end
-
-    def go_to_next_station
-      go_to_station next_station_id
-    end
-
-    def go_to_prev_station
-      go_to_station prev_station_id
     end
 
     private
