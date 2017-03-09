@@ -13,14 +13,14 @@ module Trailroad
     end
 
     def add_station(position = -2, *new_stations)
-      @stations.insert position, *new_stations
+      @stations.insert(position, *new_stations)
     end
 
     def remove_station(rm_station = nil)
       case
-      when Integer then @station.delete_at rm_station
-      when Station then @station.delete    rm_station # TODO удалять по name, а не object_id
-      when Nil     then @stations.shift
+      when Integer then @station.delete_at(rm_station)
+      when Station then @station.delete(rm_station)   # TODO удалять по name, а не object_id
+      when nil     then @stations.shift
       else raise "Wrong argument"
       end
     end

@@ -24,13 +24,11 @@ module Trailroad
     end
 
     def speed_up(amount = 1)
-      speed, amount = @speed.abs, amount.abs
-      @speed = [speed + amount, @max_speed].min
+      @speed = [speed + amount.abs, @max_speed].min
     end
 
     def slow_down(amount = 1)
-      speed, amount = @speed.abs, amount.abs
-      @speed = [speed - amount, 0].max
+      @speed = [speed - amount.abs, 0].max
     end
 
     def brake
@@ -70,30 +68,30 @@ module Trailroad
     end
 
     def leave_station
-      current_station.train_departure self
+      current_station.train_departure(self)
     end
 
     def arrived_to(station)
       station = route.stations[station] if station.is_a? Integer
-      station.train_incoming self
+      station.train_incoming(self)
     end
 
     # перемещение моментально
     def go_to_station(station_id)
       leave_station
-      arrived_to station_id
+      arrived_to(station_id)
 
       @current_station_id = station_id
     end
 
     def go_to_next_station
       return false if @current_station_id == route.stations.size - 1
-      go_to_station @current_station_id + 1
+      go_to_station(@current_station_id + 1)
     end
 
     def go_to_prev_station
       return false if @current_station_id.zero?
-      go_to_station @current_station_id - 1
+      go_to_station(@current_station_id - 1)
     end
 
     private

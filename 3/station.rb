@@ -20,7 +20,7 @@ module Trailroad
     alias new_train train_incoming # как полагается удобнее располагать алиасы?
 
     def train_departure(train = nil)
-      @trains.delete train
+      @trains.delete(train)
     end
 
     alias remove_train train_departure
