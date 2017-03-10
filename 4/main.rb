@@ -9,15 +9,15 @@ require_relative 'passenger_wagon'
 
 ABORT_KEYS = ['q', 'й', nil]
 
-ACTIONS = { main:    %w[chose_station chose_train create_station create_train],
+ACTIONS = { main:    %w[choose_station choose_train create_station create_train],
             train:   %w[add_wagons remove_wagons allocate_train],
             station: %w[allocate_train] }
 
 TITLES  = { main_menu:      '',
-            chose_station:  '- Выбрать станцию',
-            chose_train:    '- Выбрать поезд',
-            chose_station_action: '- Выбрать действие для станции',
-            chose_train_action:   '- Выбрать действие для поезда',
+            choose_station:  '- Выбрать станцию',
+            choose_train:    '- Выбрать поезд',
+            choose_station_action: '- Выбрать действие для станции',
+            choose_train_action:   '- Выбрать действие для поезда',
             create_station: '- Создать станцию',
             create_train:   '- Создать поезд',
             allocate_train: "- Размещение поезда на станции\n" }
@@ -26,9 +26,10 @@ TITLES  = { main_menu:      '',
 TIPS    = { main_menu:      "\nГлавное меню\nВведите номер комманды для её вызова",
             create_station: "\nВведите имя станции",
             create_train:   "\nВведите номер поезда, и опционально, его максимальную скорость",
-            chose_station:  "\nВведите id станции",
-            chose_train:    "\nВведите id поезда",
-            allocate_train: "\nРазместить поезд" }
+            choose_station:  "\nВведите id станции",
+            choose_train:    "\nВведите id поезда",
+            allocate_train: "\nРазместить поезд",
+            choose_train_type: "\nВыберите тип поезда"}
 
 MESSAGES = { created: '>> Создан',
              abort:   " # Назад\n\n",
@@ -37,13 +38,12 @@ MESSAGES = { created: '>> Создан',
 
 TRAIN_TYPES = ['CargoTrain', 'PassengerTrain']
 
-
 @trains   = []
 @stations = []
 
 def main_menu
   print TITLES[:main_menu]
-  chose_method(ACTIONS[:main], TIPS[:main_menu], {})
+  choose_method(ACTIONS[:main], TIPS[:main_menu], {})
 end
 
 #
@@ -62,42 +62,45 @@ end
 def create_train
   print TITLES[:create_train]
 
-  TRAIN_TYPES
+  train_classname = choose_from_list(TRAIN_TYPES, TIPS[:choose_train_type])
+  class_constant = Object.const_get(train_classname)
 
   create_object(@trains, TIPS[:create_train], :number, split: true) do |split|
-  	Train.new(*split.map(&:to_i))
+    class_constant.new(*split.map(&:to_i))
   end
 end
 
 
 
-# chose station from list > chose action for station
-def chose_station(actions_needed = true)
-  print TITLES[:chose_station]
-  chose_object(@stations, :name, TIPS[:chose_station]) do |station|
+# choose station from list > choose action for station
+def choose_station(actions_needed = true)
+  print TITLES[:choose_station]
+  choose_object(@stations, :name, TIPS[:choose_station]) do |station|
     if actions_needed
-      print TITLES[:chose_station_action]
-    	chose_method(ACTIONS[:station], TIPS[:chose_station_action], {}, station)
+      print TITLES[:choose_station_action]
+      choose_method(ACTIONS[:station], TIPS[:choose_station_action], {}, station)
     end
   end
 end
 
 
 
-# chose_object  train from list > chose action for train
-def chose_train(actions_needed = true)
-  print TITLES[:chose_train]
-  chose_object(@trains, :number, TIPS[:chose_train]) do |train|
+# choose_object  train from list > choose action for train
+def choose_train(actions_needed = true)
+  print TITLES[:choose_train]
+  choose_object(@trains, :number, TIPS[:choose_train]) do |train|
     if actions_needed
-      print TITLES[:chose_train_action]
-    	chose_method(ACTIONS[:train], TIPS[:chose_train_action], {}, train)
+      print TITLES[:choose_train_action]
+      choose_method(ACTIONS[:train], TIPS[:choose_train_action], {}, train)
     end
   end
 end
+
 
 #
 # Train methods
 #
+
 
 def add_wagons(train)
   print TITLES[:add_wagons]
@@ -116,9 +119,11 @@ def remove_wagons(train)
   puts "#{train.class} number #{train.number} have #{train.wagons.size} wagons"
 end
 
+
 #
 # Train and Station methods
 #
+
 
 # allocate train into station
 def allocate_train(train_or_station)
@@ -126,14 +131,13 @@ def allocate_train(train_or_station)
   case train_or_station
   when Train
     train   = train_or_station
-    station = chose_station(false)
+    station = choose_station(false)
   when Trailroad::
     Station
     station = train_or_station
-    train   = chose_train(false)
+    train   = choose_train(false)
   end
   puts
-  "\n#{train.inspect} <> #{station.inspect}"
   train.allocate_on(station)
 end
 
@@ -143,8 +147,8 @@ end
 
 def create_object(collection, repeteable_tip, inspect_methods, loop_options = {})
   object = nil
-  gets_loop(repeteable_tip, loop_options) do |recieved|
-  	object = yield(recieved)
+  recieve_gets(repeteable_tip, loop_options) do |recieved|
+    object = yield(recieved)
     collection << object
 
     inspects = [*inspect_methods].inject([]) { |c, m| c << "#{m}: #{object.send(m)}"}
@@ -155,16 +159,16 @@ end
 
 
 
-# chose object
-# if block given => yield object in gets_loop
-# else return object
-def chose_object(collection, name_method, repeteable_tip)
+# choose object from collection
+# if block given => yield object in recieve_gets
+# return object
+def choose_object(collection, name_method, repeteable_tip)
   titles     = collection.map(&name_method) # method, that returns name of each object
   tips_block = get_tips_block(titles, repeteable_tip)
 
   object = nil
-  gets_loop(tips_block, get_index: true, loop: false) do |index|
-    object = collection[index - 1]
+  recieve_gets(tips_block, get_index: true, loop: false) do |index|
+    object = collection[index]
     yield(object) if block_given?
   end
   object
@@ -172,25 +176,25 @@ end
 
 
 
-# chose and send method from list
-def chose_method(methods_list, repeteable_tip, options, *args)
+# choose and send method from list
+def choose_method(methods_list, repeteable_tip, options, *args)
   default    = {get_index: true, loop: true}
   options    = default.merge(options)
   tips_block = get_tips_block(methods_list, repeteable_tip)
 
-  gets_loop(tips_block, options) do |index|
-    send(methods_list[index - 1], *args)
+  recieve_gets(tips_block, options) do |index|
+    send(methods_list[index], *args)
   end
 end
 
 
 
-def chose_from_list(list, repeteable_tip)
-  tips_block = get_tips_block(actions_list, repeteable_tip)
-
-  gets_loop(tips_block, options) do |index|
-
-  end
+def choose_from_list(list, repeteable_tip)
+  tips_block = get_tips_block(list, repeteable_tip)
+  element = nil
+  recieve_gets(tips_block, get_index: true, loop: false) { |index| element = list[index] }
+  puts element
+  element
 end
 
 
@@ -204,7 +208,7 @@ end
 # > `get_index: true` => yielding gets.split.first.to_i
 #
 # print `message_or_proc` each iteration, but before `gets`
-def gets_loop(repeteable_tip, options = {})
+def recieve_gets(repeteable_tip, options = {})
   result = nil
   begin
     print_inloop_tip(repeteable_tip)
@@ -213,8 +217,8 @@ def gets_loop(repeteable_tip, options = {})
       print MESSAGES[:abort]
       break
     else
-      gets_input = gets_input.split(' ') if options[:get_index] || options[:split]
-      gets_input = gets_input.first.to_i if options[:get_index]
+      gets_input = gets_input.split(' ')     if options[:get_index] || options[:split]
+      gets_input = gets_input.first.to_i - 1 if options[:get_index]
 
       yield(gets_input)
     end
@@ -223,7 +227,8 @@ end
 
 
 
-# proc for calling in `.gets_loop`s loop
+# Shows list of Possible values for select, and its Indexes
+#   proc for calling in `.recieve_gets`s loop between `iteration start` and `gets.chomp`
 def get_tips_block(list, message)
   ->{
       puts message
@@ -233,7 +238,7 @@ end
 
 
 
-# calling proc for `.gets_loop`s loop
+# calling proc for `.recieve_gets`s loop
 # message or block of messages
 def print_inloop_tip(message_or_proc)
   case message_or_proc
