@@ -7,92 +7,85 @@ require_relative 'wagon'
 require_relative 'cargo_wagon'
 require_relative 'passenger_wagon'
 
-#  - Добавлять вагоны к поезду
-#  - Отцеплять вагоны от поезда
-#  - Помещать поезда на станцию
-#  - Просматривать список станций и список поездов на станции
-
 ABORT_KEYS = ['q', 'й', nil]
 
+ACTIONS = {main:    %w[chose_station chose_train create_station create_train],
+           train:   %w[add_wagons remove_wagons allocate_train],
+           station: %w[allocate_train]}
 
-# глобальные временно, пока не выделил в класс
-$trains   = []
-$stations = []
+TITLES  = {main_menu:      'Главное меню',
+           create_station: '- Создать станцию',
+           create_train:   '- Создать поезд'}
+
+TIPS    = {main_menu:      'Введите номер комманды для её вызова',
+           create_station: 'Введите имя станции',
+           create_train:   'Введите номер поезда, и опционально, его максимальную скорость',
+           chose_station:  'Введите id станции',
+           chose_train:    'Введите id поезда'}
+
+MESSAGES = {created: '>> Создан',
+            abort:   " # Отмена\n\n",
+        	exit_tip: '', #{}"   [для выхода `#{ABORT_KEYS.first}` или Enter]\n\n",
+        	}
 
 
+@trains   = []
+@stations = []
 
 def main_menu
-  methods = %w[chose_station chose_train create_station create_train]
-  messages = get_messages_proc(methods, 'Введите номер комманды для её вызова')
-
-  puts 'Главное меню'
-
-  gets_loop(messages) do |recieved|
-   index  = recieved.split(' ').first.to_i
-   method = methods[index - 1]
-   send method
-  end
+  messages = get_messages_proc(methods, TIPS[:main_menu])
+  puts TITLES[:main_menu]
+  chose_action_loop(ACTIONS[:main])
 end
 
-
+# 
+# Main methods
+# 
 
 def create_station
-  puts '- Создать станцию'
-  message = 'Введите имя станции'
-  gets_loop(message) do |recieved_name|
-    station = Trailroad::Station.new recieved_name
+  puts TITLES[:create_station]
+  repeteable_tip = TIPS[:create_station]
 
-    $stations << station
-
-    puts ">> Создана станция '#{station.name}'"
+  create_object(@trains, repeteable_tip, :name) do |recieved_string|
+  	Trailroad::Station.new(recieved_string)
   end
 end
 
 
 
 def create_train
-  puts '- Создать поезд'
-  message = 'Введите номер поезда, и опционально, его максимальную скорость'
-  gets_loop(message) do |recieved|
-    args = recieved.split(' ').map(&:to_i)
+  puts TITLES[:create_train]
+  repeteable_tip = TIPS[:create_train]
 
-    train = Train.new *args
-    $trains << train
-
-    puts ">> Создан поезд #{train.number}, " +
-            "максимальная скорость: #{train.max_speed}"
+  create_object(@trains, repeteable_tip, :number, split: true) do |recieved_split|
+  	Train.new(*recieved.map(&:to_i))
   end
 end
 
 
 
-def chose_train
-  train_numbers    = $trains.map &:number
-  trains_msg_proc  = get_messages_proc(train_numbers, 'Введите id поезда')
-  actions_msg_proc = get_messages_proc(methods, 'Введите номер комманды для её вызова')
-
-  gets_loop(trains_msg_proc) do |recieved|
-   index, *args = recieved.split(' ')
-   train = $trains[index.to_i - 1]
-
-   chose_train_action
+# chose station from list > chose action for station
+def chose_station(chose_action_needed = true)
+  chose_object(@trains, :number, TIPS[:chose_station]) do |station|
+  	chose_action_loop(ACTIONS[:station], station) if chose_action_needed
   end
 end
 
 
 
-def chose_train_action
-  methods = %w[add_wagons remove_wagons allocate_train]
-  
-  gets_loop(actions_msg_proc) do |recieved|
-    index = recieved.split(' ').first.to_i - 1
-    send(methods[index], train, *args)
-   end
+# chose_object  train from list > chose action for train
+def chose_train(chose_action_needed = true)
+  chose_object(@trains, :number, TIPS[:chose_train]) do |train|
+  	chose_action_loop(ACTIONS[:train], train) if chose_action_needed
+  end
 end
 
-
+# 
+# Train methods
+# 
 
 def add_wagons(train)
+  puts TITLES[:add_wagons]
   wagon = train.add_wagon
   puts "#{wagon.class} added to the #{train.class}"
   puts "#{train.class} number #{train.number} have #{train.wagons.size} wagons"
@@ -101,59 +94,100 @@ end
 
 
 def remove_wagons(train)
+  puts TITLES[:remove_wagons]
   train.remove_wagon
   puts "#{wagon.class} removed to the #{train.class}"
   puts "#{train.class} number #{train.number} have #{train.wagons.size} wagons"
 end
 
+# 
+# Train and Station methods
+# 
 
-
+# allocate train into station
 def allocate_train(train_or_station)
+  puts TITLES[:allocate_train]
   case train_or_station
   when Train
-    #
+    train   = train_or_station
+    station = chose_station(call_actions: false)
   when Station
-    #
+    station = train_or_station
+    train   = chose_train(call_actions: false)
+  end
+  # train.allocate_to(station)
+end
+
+# 
+# for private / protected
+# 
+
+def create_object(collection, repeteable_tip, inspect_methods, loop_options = {})
+  gets_loop(repeteable_tip, loop_options) do |recieved|
+  	object = yield(recieved)
+    collection << object
+
+    inspects = [*inspect_methods].inject([]) { |c, m| c << "#{m}: #{object.send(m)}"}
+    print "#{MESSAGES[:created]} #{object.class}; #{inspects * ', '}"
+  end
+  object
+end
+
+
+
+def chose_object(collection, name_method, repeteable_tip)
+  titles   = collection.map(&name_method) # method, that returns name of each object
+  messages_proc = get_messages_proc(titles, repeteable_tip)
+
+  gets_loop(messages_proc, get_index: true, loop: false) do |index|
+    object = collection[index - 1]
+    yield(object) if block_given?
+  end
+  object
+end
+
+
+
+# chose and send method from list
+def chose_action(methods_list, *args)
+  (methods_list.size == 1) && send(methods_list.first, *args)
+
+  gets_loop(actions_msg_proc, get_index: true) do |index|
+    send(methods_list[index - 1], *args)
   end
 end
 
 
 
-def chose_station
-  station_names = $stations.map &:name
-  stations_msg_proc = get_messages_proc(station_names, 'Введите id станции')
-
-  gets_loop(stations_msg_proc) do |recieved|
-   index = recieved.split(' ').first.to_i
-   station = $stations[index - 1]
-  #  allocate_train
-  end
-end
-
-
-
-def gets_string
-  (recieved = gets.chomp).empty? ? nil : recieved
-end
-
-
-
-# loop while gets
-def gets_loop(message)
-  loop do
-    print_inloop_message(message)
-
-    case recieved = gets_string
+# > loop while gets;
+# > if ABORT_KEY given => breaks loop
+# > yielding `gets`
+# 
+# > `loop: false`     => only one loop
+# > `split: true`     => yielding gets.split
+# > `get_index: true` => yielding gets.split.first.to_i
+# 
+# print `message_or_proc` each iteration, but before `gets`
+def gets_loop(repeteable_tip, options = {})
+  result = nil
+  begin
+    print_inloop_tip(repeteable_tip)
+    case (gets_input = gets.chomp.stripe).empty? ? nil : gets_input
     when *ABORT_KEYS
-      print " # Отмена\n\n"
+      print MESSAGES[:abort]
       break
     else
-      result = yield recieved
+      gets_input = gets_input.split(' ') if options[:get_index] || options[:split]
+      gets_input = gets_input.first.to_i if options[:get_index]
+
+      yield(gets_input)
     end
-  end
+  end while options[:loop].nil? || options[:loop]
 end
 
 
+
+# proc for calling in `.gets_loop`s loop
 def get_messages_proc(list, message)
   ->{
       puts message
@@ -163,10 +197,12 @@ end
 
 
 
-def print_inloop_message(message)
-  case message
+# calling proc for `.gets_loop`s loop
+# message or block of messages
+def print_inloop_tip(message_or_proc)
+  case message_or_proc
   when String
-    puts message + exit_reminder_string
+    puts message + MESSAGES[:exit_tip]
   when Proc
     message.call
   end
@@ -174,13 +210,8 @@ end
 
 
 
-def exit_reminder_string
-  ''
-  # "   [для выхода `#{ABORT_KEYS.first}` или Enter]\n\n"
-end
-
-5.times { $trains << Train.new(1000 + rand(8999)) }
+5.times  { @trains << Train.new(1000 + rand(8999)) }
 alphabet = (?A..?Z).to_a.shuffle
-5.times { $stations << Trailroad::Station.new("Station-#{alphabet.shift * 2}") }
+10.times { @stations << Trailroad::Station.new("Station-#{alphabet.shift * 2}") }
 
 main_menu
