@@ -13,15 +13,19 @@ class Train < Trailroad::Train
     @speed = 0
   end
 
-  def add_wagon(wagon = nil)
+  def add_wagon
     return false unless stop?
-    @wagons << (wagon && wagon.is_a?(Wagon)) ? wagon : wagon_class.new
+    @wagons << (wagon = wagon_class.new)
+    wagon
   end
 
-  def remove_wagons(count = 1)
+  def remove_wagon(count = 1)
     return false unless stop?
-    @wagons.pop(count)
+    result = @wagons.pop(count)
+    result.first
   end
+
+  alias allocate_on arrived_to
 
   protected
 

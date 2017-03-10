@@ -1,4 +1,4 @@
-class PassenegerTrain < Train
+class PassengerTrain < Train
 
   # без других действий - просто для говорящего имени
   # куцая, нефункциональная обертка.
@@ -17,6 +17,6 @@ class PassenegerTrain < Train
   protected
 
   def wagon_class
-    PassenegerWagon
+    PassengerWagon
   end
 end
