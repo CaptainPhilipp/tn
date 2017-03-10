@@ -12,7 +12,7 @@ module Trailroad
   # + Может перемещаться между станциями, указанными в маршруте.
   # + Показывать предыдущую станцию, текущую, следующую, на основе маршрута
   class Train
-    attr_reader :number, :type, :wagons, :speed, :route
+    attr_reader :number, :type, :wagons, :speed, :max_speed, :route
 
     def initialize(number, train_type, wagons, max_speed = 120)
       @number    = number
@@ -24,7 +24,7 @@ module Trailroad
     end
 
     def speed_up(amount = 1)
-      @speed = [speed + amount.abs, @max_speed].min
+      @speed = [speed + amount.abs, max_speed].min
     end
 
     def slow_down(amount = 1)
