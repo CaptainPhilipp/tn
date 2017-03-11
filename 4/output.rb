@@ -1,8 +1,9 @@
-module Output
+class Output
   # показывает элементы коллекции построчно
   # дополняет строку, вызывая к ним инфометоды на каждой строке,
   # представляет в виде ровной таблички
-  def print_indexed_list(collection, *info_methods)
+  def self.indexed_list(collection, *info_methods)
+  # def print_indexed_list(collection, *info_methods)
     rows = []
     collection.each_with_index do |item, i|
       row = [" [#{i + 1}] "]
@@ -17,7 +18,7 @@ module Output
   private
 
   # считает максимальную длину каждого столбца
-  def max_length_of_columns(rows)
+  def self.max_length_of_columns(rows)
     max_len = []
     columns_count = rows.first.size
     columns_count.times do |c|

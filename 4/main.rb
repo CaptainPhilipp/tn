@@ -8,7 +8,6 @@ require_relative 'passenger_wagon'
 require_relative 'output'
 
 class Application
-  include Output
 
   ABORT_KEYS = ['q', 'й', nil]
 
@@ -27,7 +26,8 @@ class Application
     methods_list =  %w[select_station select_train create_station create_train]
     loop do
       puts "\nГлавное меню\nВведите номер комманды для её вызова"
-      return unless index = gets_and_tips(:index, methods_list)
+      Output.indexed_list(methods_list)
+      return unless index = gets_index
       send(methods_list[index])
     end
   end
@@ -59,14 +59,14 @@ class Application
   def select_station
     loop do
       puts "\nВведите id станции"
-      station = gets_and_tips(:object, Station.all, [:name, :trains_count])
-      return unless station
+      Output.indexed_list(Station.all, :name, :trains_count)
+      return unless station = gets_object(Station.all)
 
       puts "\nПоезда на этой станции: "
       on_station = Train.all.select{ |t| t.current_station == station }
 
       return if on_station.empty?
-      print_indexed_list(on_station, :number, :class, :wagons_count)
+      Output.indexed_list(on_station, :number, :class, :wagons_count)
     end
   end
 
@@ -75,8 +75,8 @@ class Application
   def select_train(trains = Train.all)
     loop do
       puts "\nВведите id поезда"
-      train = gets_and_tips(:object, Train.all, [:number, :class, :wagons_count])
-      return unless train
+      Output.indexed_list(Train.all, :number, :class, :wagons_count)
+      return unless train = gets_object(Train.all)
       puts train.inspect
       action_train(train)
     end
@@ -89,7 +89,8 @@ class Application
     puts "   Выберите действие для поезда"
     show_train(train)
     loop do
-      index = gets_and_tips(:index, methods_list)
+      Output.indexed_list(methods_list)
+      index = gets_index
       return unless index
 
       meth = methods_list[index]
@@ -121,7 +122,8 @@ class Application
 
   def allocate_train(train)
     puts "\nРазместить поезд"
-    station = gets_and_tips(:object, Station.all, [:name, :trains_count])
+    Output.indexed_list(Station.all, :name, :trains_count)
+    station = gets_object(Station.all)
     return unless station
 
     train.allocate(station)
@@ -142,7 +144,8 @@ class Application
 
   def gets_choose_train_type
     puts "\nВыберите тип поезда"
-    index = gets_and_tips(:index, TRAIN_TYPES)
+    Output.indexed_list(TRAIN_TYPES)
+    index = gets_index
     return unless index
     TRAIN_CLASSES[index]
   end
@@ -156,24 +159,6 @@ class Application
             "max_speed: `#{train.max_speed}` wagons: `#{train.wagons.size}`"
 
     puts "  location: `#{train.current_station}`"
-  end
-
-
-
-  # just for DRY
-  # show list of tips and send gets_xxx method
-  # return nilable gets (nil if recieved empty or ABORT KEY)
-  def gets_and_tips(gets_method, collection, info_methods = nil)
-    print_indexed_list(collection, *info_methods) if collection
-
-    case meth = "gets_#{gets_method}"
-    when 'gets_object'
-      send(meth, collection)
-    when 'gets_splited', 'gets_index', 'gets_nilable'
-      send(meth)
-    else
-      raise "NoMethod"
-    end
   end
 
 
