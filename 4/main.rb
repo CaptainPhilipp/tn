@@ -5,181 +5,199 @@ require_relative 'passenger_train'
 require_relative 'wagon'
 require_relative 'cargo_wagon'
 require_relative 'passenger_wagon'
+require_relative 'output'
 
 class Application
+  include Output
+
   ABORT_KEYS = ['q', 'й', nil]
 
-  ACTIONS = { main:    %w[select_station select_train create_station create_train],
-              train:   %w[add_wagons remove_wagon allocate_train],
-              station: %w[allocate_train] }
-
-  TIPS    = { main_Application:      "\nГлавное меню\nВведите номер комманды для её вызова",
-              create_station: "\nВведите имя станции",
-              create_train:   "\nВведите номер поезда, и опционально, его максимальную скорость",
-              select_station: "\nВведите id станции",
-              select_train_action: "   Выберите действие для поезда",
-              train_info:     "\nИнформация о поезде",
-              trains_on_station:   "\nПоезда на этой станции: ",
-              select_train:   "\nВведите id поезда",
-              continue:       "\nНажмите `Enter` для продолжения",
-              chosen:         "\nВыбран: ",
-              allocate_train: "\nРазместить поезд",
-              select_train_type:   "\nВыберите тип поезда"}
-
-  TRAIN_TYPES = ['CargoTrain', 'PassengerTrain']
+  TRAIN_TYPES = %w[CargoTrain PassengerTrain]
+  TRAIN_CLASSES = TRAIN_TYPES.map{ |type| Object.const_get type }
 
   #
-  # Main methods
+  # конструкции вида `return unless ... = gets_xxx`
+  # призваны отменять действие (в том числе прерывать цикл),
+  # если метод 'gets_xxx' возвращает nil
   #
-
-  def initialize
-    @trains, @stations = [], []
-  end
+  # методы вида 'gets_xxx' возвращают nil если получена пустая строка или ABORT_KEY
+  #
 
   def main_menu
+    methods_list =  %w[select_station select_train create_station create_train]
     loop do
-      puts TIPS[:main_Application]
-      print_indexed_list(ACTIONS[:main])
-      return unless index = gets_index
-      send(ACTIONS[:main][index])
+      puts "\nГлавное меню\nВведите номер комманды для её вызова"
+      return unless index = gets_and_tips(:index, methods_list)
+      send(methods_list[index])
     end
   end
 
+
+
   def create_station
-    puts TIPS[:create_station]
-    return unless name = ggets
-    @stations << Trailroad::Station.new(name)
+    puts "\nВведите имя станции"
+    return unless name = gets_nilable
+    Station.new(name)
   end
 
-  def create_train
-    puts TIPS[:select_train_type]
-    print_indexed_list(TRAIN_TYPES)
-    train_constant = Object.const_get(TRAIN_TYPES[gets_index])
 
-    puts TIPS[:create_train]
-    return unless split = gets_split_args
-    name_n_speed = split.map(&:to_i)
-    train = train_constant.new(*name_n_speed)
-    @trains << train
+
+  # chose type
+  def create_train
+    constant = gets_choose_train_type
+    puts "\nВведите номер поезда, и опционально, его максимальную скорость"
+
+    return unless split = gets_splited
+
+    args  = split.map(&:to_i)
+    train = constant.new(*args)
     print "\n Создан #{train.class}##{train.number}, max speed: #{train.max_speed}"
   end
 
+
+
   def select_station
     loop do
-      puts TIPS[:select_station]
-      return unless station = gets_object(@stations, :name, :trains_count)
-      puts TIPS[:trains_on_station]
-      on_station = @trains.select{ |t| t.current_station == station }
-      select_train(on_station)
+      puts "\nВведите id станции"
+      station = gets_and_tips(:object, Station.all, [:name, :trains_count])
+      return unless station
+
+      puts "\nПоезда на этой станции: "
+      on_station = Train.all.select{ |t| t.current_station == station }
+
+      return if on_station.empty?
+      print_indexed_list(on_station, :number, :class, :wagons_count)
     end
   end
 
-  def select_train(trains = @trains)
+
+
+  def select_train(trains = Train.all)
     loop do
-      puts TIPS[:select_train]
-      return unless train = gets_object(trains, :number, :class, :wagons_count)
+      puts "\nВведите id поезда"
+      train = gets_and_tips(:object, Train.all, [:number, :class, :wagons_count])
+      return unless train
+      puts train.inspect
       action_train(train)
     end
   end
 
+
+
   def action_train(train)
+    methods_list = %w[add_wagons remove_wagon allocate_train]
+    puts "   Выберите действие для поезда"
     show_train(train)
     loop do
-      puts TIPS[:select_train_action]
-      print_indexed_list(ACTIONS[:train])
-      return unless index = gets_index
-      meth = ACTIONS[:train][index]
-      puts "#{TIPS[:chosen]} #{meth}"
+      index = gets_and_tips(:index, methods_list)
+      return unless index
+
+      meth = methods_list[index]
+      puts "\nВыбран: #{meth}"
       send(meth, train)
     end
   end
 
+
+
   def add_wagons(train)
     wagon = train.add_wagon
+
     puts "#{wagon.class} added to the #{train.class}"
     puts "#{train.class} number #{train.number} have #{train.wagons.size} wagons"
   end
 
+
+
   def remove_wagon(train)
     return if train.wagons.size.zero?
-    wagon = train.remove_wagon
-    puts "#{wagon.class} removed from the #{train.class}"
+    wagons = train.remove_wagon
+
+    puts "#{wagons.first.class} removed from the #{train.class}"
     puts "#{train.class} number #{train.number} have #{train.wagons.size} wagons"
   end
 
+
+
   def allocate_train(train)
-    puts TIPS[:allocate_train]
-    return unless station = gets_object(@stations, :name, :trains_count)
-    station.train_incoming(train)
+    puts "\nРазместить поезд"
+    station = gets_and_tips(:object, Station.all, [:name, :trains_count])
+    return unless station
+
+    train.allocate(station)
     puts "#{train.class}##{train.number} moved to #{station.name}"
   end
 
+
+
   def seed
-    5.times  { @trains << Object.const_get(TRAIN_TYPES[rand 2]).new(1000 + rand(8999)) }
+    5.times  { TRAIN_CLASSES[rand 2].new(1000 + rand(8999)) }
     alphabet = (?A..?Z).to_a.shuffle
-    10.times { @stations << Trailroad::Station.new("Station-#{alphabet.shift * 2}") }
+    10.times { Station.new("Station-#{alphabet.shift * 2}") }
   end
 
-  private
-  # потому что наследников нет.
+
+
+  private # потому что наследников нет.
+
+  def gets_choose_train_type
+    puts "\nВыберите тип поезда"
+    index = gets_and_tips(:index, TRAIN_TYPES)
+    return unless index
+    TRAIN_CLASSES[index]
+  end
+
+
 
   def show_train(train)
-    puts TIPS[:train_info]
-    t = train
-    puts "\n Number: `#{t.number}`, type: `#{t.class}`, max_speed: `#{t.max_speed}`" +
-            "wagons: `#{t.wagons.size}`"
-    location = @stations.select{ |s| s.trains.include? train }
-    puts "  location: `#{location.first}`" unless location.empty?
+    puts "\nИнформация о поезде"
+
+    puts "\n Number: `#{train.number}`, type: `#{train.class}`, " +
+            "max_speed: `#{train.max_speed}` wagons: `#{train.wagons.size}`"
+
+    puts "  location: `#{train.current_station}`"
   end
 
-  # private
 
-  # показывает элементы коллекции, вызывает к ним инфометоды,
-  # представляет в виде ровной таблички
-  def print_indexed_list(collection, *info_methods)
-    rows = []
-    collection.each_with_index do |item, i|
-      row = [" [#{i + 1}] "]
-      info_methods.each { |method| row << "#{method}: `#{item.send(method)}`" }
-      row.insert(1, item) if row.size == 1 && item.is_a?(String)
-      rows << row
+
+  # just for DRY
+  # show list of tips and send gets_xxx method
+  # return nilable gets (nil if recieved empty or ABORT KEY)
+  def gets_and_tips(gets_method, collection, info_methods = nil)
+    print_indexed_list(collection, *info_methods) if collection
+
+    case meth = "gets_#{gets_method}"
+    when 'gets_object'
+      send(meth, collection)
+    when 'gets_splited', 'gets_index', 'gets_nilable'
+      send(meth)
+    else
+      raise "NoMethod"
     end
-    max_len = max_length_of_columns(rows)
-    puts rows.map{ |a| a.map.with_index{ |s, i| s.ljust max_len[i] } * ' ' }
-  end
-  #
-  # считает максимальную длину каждого столбца
-  def max_length_of_columns(rows)
-    max_len = []
-    columns_count = rows.first.size
-    rows_count    = rows.size
-    columns_count.times do |c|
-      column = []
-      rows_count.times { |r| column << rows[r][c] }
-      max_len << column.inject(1) { |memo, row| [row.size, memo].max }
-    end
-    max_len
   end
 
-  def gets_object(collection, *info_methods)
-    print_indexed_list(collection, *info_methods)
+
+
+  def gets_object(collection)
     return unless index = gets_index
     collection[index]
   end
 
-  def gets_split_args
-    return unless answer = ggets
+  # splited string
+  def gets_splited
+    return unless answer = gets_nilable
     answer.split(' ')
   end
 
   def gets_index
-    return unless answer = ggets
+    return unless answer = gets_nilable
     answer.to_i - 1
   end
 
-  def ggets
+  # return nil if recieved ABORT_KEY or empty string
+  def gets_nilable
     answer = gets.chomp.strip
-    answer.empty? || ABORT_KEYS.include?(answer) ? nil : answer
+    (answer.empty? || ABORT_KEYS.include?(answer)) ? nil : answer
   end
 end
 
