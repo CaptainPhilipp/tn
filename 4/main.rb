@@ -1,5 +1,4 @@
-require          '../3/route'
-require          '../3/station'
+require_relative 'station'
 require_relative 'train'
 require_relative 'cargo_train'
 require_relative 'passenger_train'
@@ -7,252 +6,185 @@ require_relative 'wagon'
 require_relative 'cargo_wagon'
 require_relative 'passenger_wagon'
 
-ABORT_KEYS = ['q', 'й', nil]
+class Application
+  ABORT_KEYS = ['q', 'й', nil]
 
-ACTIONS = { main:    %w[choose_station choose_train create_station create_train],
-            train:   %w[add_wagons remove_wagons allocate_train],
-            station: %w[allocate_train] }
+  ACTIONS = { main:    %w[select_station select_train create_station create_train],
+              train:   %w[add_wagons remove_wagon allocate_train],
+              station: %w[allocate_train] }
 
-TITLES  = { main_menu:      '',
-            choose_station:  '- Выбрать станцию',
-            choose_train:    '- Выбрать поезд',
-            choose_station_action: '- Выбрать действие для станции',
-            choose_train_action:   '- Выбрать действие для поезда',
-            create_station: '- Создать станцию',
-            create_train:   '- Создать поезд',
-            allocate_train: "- Размещение поезда на станции\n" }
+  TIPS    = { main_Application:      "\nГлавное меню\nВведите номер комманды для её вызова",
+              create_station: "\nВведите имя станции",
+              create_train:   "\nВведите номер поезда, и опционально, его максимальную скорость",
+              select_station: "\nВведите id станции",
+              select_train_action: "   Выберите действие для поезда",
+              train_info:     "\nИнформация о поезде",
+              trains_on_station:   "\nПоезда на этой станции: ",
+              select_train:   "\nВведите id поезда",
+              continue:       "\nНажмите `Enter` для продолжения",
+              chosen:         "\nВыбран: ",
+              allocate_train: "\nРазместить поезд",
+              select_train_type:   "\nВыберите тип поезда"}
 
+  TRAIN_TYPES = ['CargoTrain', 'PassengerTrain']
 
-TIPS    = { main_menu:      "\nГлавное меню\nВведите номер комманды для её вызова",
-            create_station: "\nВведите имя станции",
-            create_train:   "\nВведите номер поезда, и опционально, его максимальную скорость",
-            choose_station:  "\nВведите id станции",
-            choose_train:    "\nВведите id поезда",
-            allocate_train: "\nРазместить поезд",
-            choose_train_type: "\nВыберите тип поезда"}
+  #
+  # Main methods
+  #
 
-MESSAGES = { created: '>> Создан',
-             abort:   " # Назад\n\n",
-             exit_tip: "   [для выхода `#{ABORT_KEYS.first}` или Enter]\n\n",
-           }
-
-TRAIN_TYPES = ['CargoTrain', 'PassengerTrain']
-
-@trains   = []
-@stations = []
-
-def main_menu
-  print TITLES[:main_menu]
-  choose_method(ACTIONS[:main], TIPS[:main_menu], {})
-end
-
-#
-# Main methods
-#
-
-def create_station
-  print TITLES[:create_station]
-  create_object(@trains, TIPS[:create_station], :name) do |recieved_string|
-  	Trailroad::Station.new(recieved_string)
+  def initialize
+    @trains, @stations = [], []
   end
-end
 
-
-
-def create_train
-  print TITLES[:create_train]
-
-  train_classname = choose_from_list(TRAIN_TYPES, TIPS[:choose_train_type])
-  class_constant = Object.const_get(train_classname)
-
-  create_object(@trains, TIPS[:create_train], :number, split: true) do |split|
-    class_constant.new(*split.map(&:to_i))
-  end
-end
-
-
-
-# choose station from list > choose action for station
-def choose_station(actions_needed = true)
-  print TITLES[:choose_station]
-  choose_object(@stations, :name, TIPS[:choose_station]) do |station|
-    if actions_needed
-      print TITLES[:choose_station_action]
-      choose_method(ACTIONS[:station], TIPS[:choose_station_action], {}, station)
+  def main_menu
+    loop do
+      puts TIPS[:main_Application]
+      print_indexed_list(ACTIONS[:main])
+      return unless index = gets_index
+      send(ACTIONS[:main][index])
     end
   end
-end
 
+  def create_station
+    puts TIPS[:create_station]
+    return unless name = ggets
+    @stations << Trailroad::Station.new(name)
+  end
 
+  def create_train
+    puts TIPS[:select_train_type]
+    print_indexed_list(TRAIN_TYPES)
+    train_constant = Object.const_get(TRAIN_TYPES[gets_index])
 
-# choose_object  train from list > choose action for train
-def choose_train(actions_needed = true)
-  print TITLES[:choose_train]
-  choose_object(@trains, :number, TIPS[:choose_train]) do |train|
-    if actions_needed
-      print TITLES[:choose_train_action]
-      choose_method(ACTIONS[:train], TIPS[:choose_train_action], {}, train)
+    puts TIPS[:create_train]
+    return unless split = gets_split_args
+    name_n_speed = split.map(&:to_i)
+    train = train_constant.new(*name_n_speed)
+    @trains << train
+    print "\n Создан #{train.class}##{train.number}, max speed: #{train.max_speed}"
+  end
+
+  def select_station
+    loop do
+      puts TIPS[:select_station]
+      return unless station = gets_object(@stations, :name, :trains_count)
+      puts TIPS[:trains_on_station]
+      on_station = @trains.select{ |t| t.current_station == station }
+      select_train(on_station)
     end
   end
-end
 
-
-#
-# Train methods
-#
-
-
-def add_wagons(train)
-  print TITLES[:add_wagons]
-  wagon = train.add_wagon
-  puts "#{wagon.class} added to the #{train.class}"
-  puts "#{train.class} number #{train.number} have #{train.wagons.size} wagons"
-end
-
-
-
-def remove_wagons(train)
-  print TITLES[:remove_wagons]
-  wagon = train.remove_wagon
-  puts wagon.inspect
-  puts "#{wagon.class} removed from the #{train.class}"
-  puts "#{train.class} number #{train.number} have #{train.wagons.size} wagons"
-end
-
-
-#
-# Train and Station methods
-#
-
-
-# allocate train into station
-def allocate_train(train_or_station)
-  print TITLES[:allocate_train]
-  case train_or_station
-  when Train
-    train   = train_or_station
-    station = choose_station(false)
-  when Trailroad::
-    Station
-    station = train_or_station
-    train   = choose_train(false)
-  end
-  puts
-  train.allocate_on(station)
-end
-
-#
-# for private / protected
-#
-
-def create_object(collection, repeteable_tip, inspect_methods, loop_options = {})
-  object = nil
-  recieve_gets(repeteable_tip, loop_options) do |recieved|
-    object = yield(recieved)
-    collection << object
-
-    inspects = [*inspect_methods].inject([]) { |c, m| c << "#{m}: #{object.send(m)}"}
-    print "#{MESSAGES[:created]} #{object.class}; #{inspects * ', '}"
-  end
-  object
-end
-
-
-
-# choose object from collection
-# if block given => yield object in recieve_gets
-# return object
-def choose_object(collection, name_method, repeteable_tip)
-  titles     = collection.map(&name_method) # method, that returns name of each object
-  tips_block = get_tips_block(titles, repeteable_tip)
-
-  object = nil
-  recieve_gets(tips_block, get_index: true, loop: false) do |index|
-    object = collection[index]
-    yield(object) if block_given?
-  end
-  object
-end
-
-
-
-# choose and send method from list
-def choose_method(methods_list, repeteable_tip, options, *args)
-  default    = {get_index: true, loop: true}
-  options    = default.merge(options)
-  tips_block = get_tips_block(methods_list, repeteable_tip)
-
-  recieve_gets(tips_block, options) do |index|
-    send(methods_list[index], *args)
-  end
-end
-
-
-
-def choose_from_list(list, repeteable_tip)
-  tips_block = get_tips_block(list, repeteable_tip)
-  element = nil
-  recieve_gets(tips_block, get_index: true, loop: false) { |index| element = list[index] }
-  puts element
-  element
-end
-
-
-
-# > loop while gets;
-# > if ABORT_KEY given => breaks loop
-# > yielding `gets`
-#
-# > `loop: false`     => only one loop
-# > `split: true`     => yielding gets.split
-# > `get_index: true` => yielding gets.split.first.to_i
-#
-# print `message_or_proc` each iteration, but before `gets`
-def recieve_gets(repeteable_tip, options = {})
-  result = nil
-  begin
-    print_inloop_tip(repeteable_tip)
-    case (gets_input = gets.chomp.strip).empty? ? nil : gets_input
-    when *ABORT_KEYS
-      print MESSAGES[:abort]
-      break
-    else
-      gets_input = gets_input.split(' ')     if options[:get_index] || options[:split]
-      gets_input = gets_input.first.to_i - 1 if options[:get_index]
-
-      yield(gets_input)
+  def select_train(trains = @trains)
+    loop do
+      puts TIPS[:select_train]
+      return unless train = gets_object(trains, :number, :class, :wagons_count)
+      action_train(train)
     end
-  end while options[:loop].nil? || options[:loop]
-end
+  end
 
+  def action_train(train)
+    show_train(train)
+    loop do
+      puts TIPS[:select_train_action]
+      print_indexed_list(ACTIONS[:train])
+      return unless index = gets_index
+      meth = ACTIONS[:train][index]
+      puts "#{TIPS[:chosen]} #{meth}"
+      send(meth, train)
+    end
+  end
 
+  def add_wagons(train)
+    wagon = train.add_wagon
+    puts "#{wagon.class} added to the #{train.class}"
+    puts "#{train.class} number #{train.number} have #{train.wagons.size} wagons"
+  end
 
-# Shows list of Possible values for select, and its Indexes
-#   proc for calling in `.recieve_gets`s loop between `iteration start` and `gets.chomp`
-def get_tips_block(list, message)
-  ->{
-      puts message
-      list.each_with_index { |item, i| puts " [#{i + 1}] #{item}" }
-    }
-end
+  def remove_wagon(train)
+    return if train.wagons.size.zero?
+    wagon = train.remove_wagon
+    puts "#{wagon.class} removed from the #{train.class}"
+    puts "#{train.class} number #{train.number} have #{train.wagons.size} wagons"
+  end
 
+  def allocate_train(train)
+    puts TIPS[:allocate_train]
+    return unless station = gets_object(@stations, :name, :trains_count)
+    station.train_incoming(train)
+    puts "#{train.class}##{train.number} moved to #{station.name}"
+  end
 
+  def seed
+    5.times  { @trains << Object.const_get(TRAIN_TYPES[rand 2]).new(1000 + rand(8999)) }
+    alphabet = (?A..?Z).to_a.shuffle
+    10.times { @stations << Trailroad::Station.new("Station-#{alphabet.shift * 2}") }
+  end
 
-# calling proc for `.recieve_gets`s loop
-# message or block of messages
-def print_inloop_tip(message_or_proc)
-  case message_or_proc
-  when String
-    puts message_or_proc + MESSAGES[:exit_tip]
-  when Proc
-    message_or_proc.call
+  private
+  # потому что наследников нет.
+
+  def show_train(train)
+    puts TIPS[:train_info]
+    t = train
+    puts "\n Number: `#{t.number}`, type: `#{t.class}`, max_speed: `#{t.max_speed}`" +
+            "wagons: `#{t.wagons.size}`"
+    location = @stations.select{ |s| s.trains.include? train }
+    puts "  location: `#{location.first}`" unless location.empty?
+  end
+
+  # private
+
+  # показывает элементы коллекции, вызывает к ним инфометоды,
+  # представляет в виде ровной таблички
+  def print_indexed_list(collection, *info_methods)
+    rows = []
+    collection.each_with_index do |item, i|
+      row = [" [#{i + 1}] "]
+      info_methods.each { |method| row << "#{method}: `#{item.send(method)}`" }
+      row.insert(1, item) if row.size == 1 && item.is_a?(String)
+      rows << row
+    end
+    max_len = max_length_of_columns(rows)
+    puts rows.map{ |a| a.map.with_index{ |s, i| s.ljust max_len[i] } * ' ' }
+  end
+  #
+  # считает максимальную длину каждого столбца
+  def max_length_of_columns(rows)
+    max_len = []
+    columns_count = rows.first.size
+    rows_count    = rows.size
+    columns_count.times do |c|
+      column = []
+      rows_count.times { |r| column << rows[r][c] }
+      max_len << column.inject(1) { |memo, row| [row.size, memo].max }
+    end
+    max_len
+  end
+
+  def gets_object(collection, *info_methods)
+    print_indexed_list(collection, *info_methods)
+    return unless index = gets_index
+    collection[index]
+  end
+
+  def gets_split_args
+    return unless answer = ggets
+    answer.split(' ')
+  end
+
+  def gets_index
+    return unless answer = ggets
+    answer.to_i - 1
+  end
+
+  def ggets
+    answer = gets.chomp.strip
+    answer.empty? || ABORT_KEYS.include?(answer) ? nil : answer
   end
 end
 
+app = Application.new
 
+app.seed
 
-5.times  { @trains << Object.const_get(TRAIN_TYPES[rand 2]).new(1000 + rand(8999)) }
-alphabet = (?A..?Z).to_a.shuffle
-10.times { @stations << Trailroad::Station.new("Station-#{alphabet.shift * 2}") }
-
-main_menu
+app.main_menu

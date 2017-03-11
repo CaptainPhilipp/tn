@@ -25,7 +25,10 @@ class Train < Trailroad::Train
     result.first
   end
 
-  alias allocate_on arrived_to
+  # тупо что бы вызывать одним методом из main, не усложняя там код
+  def wagons_count
+    wagons.size
+  end
 
   protected
 
