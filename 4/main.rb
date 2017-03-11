@@ -42,7 +42,6 @@ class Application
 
 
 
-  # chose type
   def create_train
     constant = gets_choose_train_type
     puts "\nВведите номер поезда, и опционально, его максимальную скорость"
@@ -75,9 +74,8 @@ class Application
   def select_train(trains = Train.all)
     loop do
       puts "\nВведите id поезда"
-      Output.indexed_list(Train.all, :number, :class, :wagons_count)
+      Output.indexed_list(Train.all, :number, :class, :wagons_count, :location)
       return unless train = gets_object(Train.all)
-      puts train.inspect
       action_train(train)
     end
   end
@@ -132,10 +130,14 @@ class Application
 
 
 
-  def seed
-    5.times  { TRAIN_CLASSES[rand 2].new(1000 + rand(8999)) }
+  def seed(trains: 5, stations: 10, wagons: 8)
+    trains.times { TRAIN_CLASSES[rand 2].new(1000 + rand(8999)) }
+    Train.all.each { |t| rand(wagons).times { t.add_wagon } }
+
     alphabet = (?A..?Z).to_a.shuffle
-    10.times { Station.new("Station-#{alphabet.shift * 2}") }
+    stations.times { Station.new("Station-#{alphabet.shift * 2}") }
+
+    Train.all.each { |train| train.allocate Station.all.sample }
   end
 
 
@@ -150,14 +152,10 @@ class Application
     TRAIN_CLASSES[index]
   end
 
-
-
   def show_train(train)
     puts "\nИнформация о поезде"
-
     puts "\n Number: `#{train.number}`, type: `#{train.class}`, " +
             "max_speed: `#{train.max_speed}` wagons: `#{train.wagons.size}`"
-
     puts "  location: `#{train.current_station}`"
   end
 
@@ -188,6 +186,6 @@ end
 
 app = Application.new
 
-app.seed
+app.seed trains: 15, stations: 10, wagons: 30
 
 app.main_menu

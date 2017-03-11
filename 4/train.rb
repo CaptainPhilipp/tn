@@ -1,7 +1,7 @@
 require '../3/train'
 
-class Train < Trailroad::Train
-  attr_reader :current_station
+class Train
+  attr_reader :number, :type, :wagons, :speed, :max_speed, :current_station
 
   MAX_SPEED = 120
 
@@ -34,12 +34,14 @@ class Train < Trailroad::Train
     wagons.size
   end
 
+  def location
+    current_station.name
+  end
+
   def allocate(station)
     return unless station.is_a? Station
 
-
-    old_station = Station.all.select{ |s| s.trains.include? self }.first
-    old_station.train_departure(self) unless old_station.nil?
+    @current_station.train_departure(self) unless @current_station.nil?
 
     station.train_incoming(self)
     @current_station = station
