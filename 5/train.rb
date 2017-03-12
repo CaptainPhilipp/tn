@@ -1,10 +1,10 @@
 require '../3/train'
 
 class Train
+  include InstanceCounter
+  include Manufacture
   attr_reader :number, :type, :wagons, :speed, :max_speed, :current_station
-
   MAX_SPEED = 120
-
   @@all = []
 
   def initialize(number, max_speed = MAX_SPEED)
@@ -49,6 +49,10 @@ class Train
 
   def self.all
     @@all
+  end
+
+  def self.find(number)
+    all.select{ |t| t.number == number }.first
   end
 
   protected
