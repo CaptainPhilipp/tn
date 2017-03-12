@@ -16,17 +16,17 @@ GoodSt = Struct.new :price, :count, :total
 basket = {}
 loop do
   # в одну строку удобнее вводить. в первом коммите по этому файлу раздельный ввод.
-  puts "Введите название товара, цену и количество, или пустую строку что бы продолжить"
+  puts 'Введите название товара, цену и количество, или пустую строку что бы продолжить'
   string = gets.chomp.split ' '
-  raise "Неверное количество аргументов" unless (2..3).include?(string.size) || string.empty?
+  raise 'Неверное количество аргументов' unless (2..3).cover?(string.size) || string.empty?
   title = string.shift
-  break if title.nil? || title == "стоп"
+  break if title.nil? || title == 'стоп'
   price, count = *string.map(&:to_f)
   count ||= 1
   basket[title] = GoodSt.new price, count, count * price
 end
 
-raise "Basket is empty" if basket.empty?
+raise 'Basket is empty' if basket.empty?
 
 summ = 0
 basket.each do |title, h|

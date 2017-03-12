@@ -1,5 +1,4 @@
 class PassengerTrain < Train
-
   alias switch_doors wagons_action
 
   protected

@@ -10,7 +10,7 @@ class Station
   end
 
   def train_incoming(train)
-    raise ArgumentError, "must be Train" unless train.is_a? Train
+    raise ArgumentError, 'must be Train' unless train.is_a? Train
     @trains << train
   end
 
@@ -29,7 +29,7 @@ class Station
 
   # список поездов на станции по типу: кол-во грузовых, пассажирских
   def trains_by_type(type)
-    @trains.select{ |t| t.type == type }
+    @trains.select { |t| t.type == type }
   end
 
   def self.all

@@ -16,10 +16,10 @@ require_relative 'output'
 class Application
   include Debug
 
-  ABORT_KEYS = ['q', 'й', nil]
+  ABORT_KEYS = ['q', 'й', nil].freeze
 
-  TRAIN_TYPES = %w[CargoTrain PassengerTrain]
-  TRAIN_CLASSES = TRAIN_TYPES.map{ |type| Object.const_get type }
+  TRAIN_TYPES = %w(CargoTrain PassengerTrain).freeze
+  TRAIN_CLASSES = TRAIN_TYPES.map { |type| Object.const_get type }
 
   #
   # конструкции вида `return unless ... = gets_xxx`
@@ -30,7 +30,7 @@ class Application
   #
 
   def main_menu
-    methods_list =  %w[select_station select_train create_station create_train]
+    methods_list = %w(select_station select_train create_station create_train)
     loop do
       puts "\nГлавное меню\nВведите номер комманды для её вызова"
       Output.indexed_list(methods_list)
@@ -39,15 +39,11 @@ class Application
     end
   end
 
-
-
   def create_station
     puts "\nВведите имя станции"
     return unless name = gets_nilable
     Station.new(name)
   end
-
-
 
   def create_train
     constant = gets_choose_train_type
@@ -60,8 +56,6 @@ class Application
     print "\n Создан #{train.class}##{train.number}, max speed: #{train.max_speed}"
   end
 
-
-
   def select_station
     loop do
       puts "\nВведите id станции"
@@ -69,42 +63,35 @@ class Application
       return unless station = gets_object(Station.all)
 
       puts "\nПоезда на этой станции: "
-      on_station = Train.all.select{ |t| t.current_station == station }
+      on_station = Train.all.select { |t| t.current_station == station }
 
       return if on_station.empty?
       Output.indexed_list(on_station, :number, :class, :wagons_count)
     end
   end
 
-
-
   def select_train(trains = Train.all)
     loop do
       puts "\nВведите id поезда"
-      Output.indexed_list(Train.all, :number, :class, :wagons_count, :location)
+      Output.indexed_list(trains, :number, :class, :wagons_count, :location)
       return unless train = gets_object(Train.all)
       action_train(train)
     end
   end
 
-
-
   def action_train(train)
-    methods_list = %w[add_wagons remove_wagon allocate_train]
-    puts "   Выберите действие для поезда"
+    methods_list = %w(add_wagons remove_wagon allocate_train)
+    puts '   Выберите действие для поезда'
     show_train(train)
     loop do
       Output.indexed_list(methods_list)
-      index = gets_index
-      return unless index
+      return unless index = gets_index
 
       meth = methods_list[index]
       puts "\nВыбран: #{meth}"
       send(meth, train)
     end
   end
-
-
 
   def add_wagons(train)
     wagon = train.add_wagon
@@ -113,8 +100,6 @@ class Application
     puts "#{train.class} number #{train.number} have #{train.wagons.size} wagons"
   end
 
-
-
   def remove_wagon(train)
     return if train.wagons.size.zero?
     wagons = train.remove_wagon
@@ -122,8 +107,6 @@ class Application
     puts "#{wagons.first.class} removed from the #{train.class}"
     puts "#{train.class} number #{train.number} have #{train.wagons.size} wagons"
   end
-
-
 
   def allocate_train(train)
     puts "\nРазместить поезд"
@@ -135,8 +118,6 @@ class Application
     puts "#{train.class}##{train.number} moved to #{station.name}"
   end
 
-
-
   def seed(trains: 5, stations: 10, wagons: 8)
     trains.times { TRAIN_CLASSES[rand 2].new(1000 + rand(8999)) }
     Train.all.each { |t| rand(wagons).times { t.add_wagon } }
@@ -146,8 +127,6 @@ class Application
 
     Train.all.each { |train| train.allocate Station.all.sample }
   end
-
-
 
   private # потому что наследников нет.
 
@@ -161,12 +140,10 @@ class Application
 
   def show_train(train)
     puts "\nИнформация о поезде"
-    puts "\n Number: `#{train.number}`, type: `#{train.class}`, " +
-            "max_speed: `#{train.max_speed}` wagons: `#{train.wagons.size}`"
+    puts "\n Number: `#{train.number}`, type: `#{train.class}`, " \
+         "max_speed: `#{train.max_speed}` wagons: `#{train.wagons.size}`"
     puts "  location: `#{train.current_station}`"
   end
-
-
 
   def gets_object(collection)
     return unless index = gets_index
@@ -187,7 +164,7 @@ class Application
   # return nil if recieved ABORT_KEY or empty string
   def gets_nilable
     answer = gets.chomp.strip
-    (answer.empty? || ABORT_KEYS.include?(answer)) ? nil : answer
+    answer.empty? || ABORT_KEYS.include?(answer) ? nil : answer
   end
 end
 

@@ -1,5 +1,3 @@
-require '../3/train'
-
 class Train
   include Debug
   include InstanceCounter
@@ -29,7 +27,7 @@ class Train
 
   def remove_wagon(count = 1)
     return false unless stop?
-    result = @wagons.pop(count)
+    @wagons.pop(count)
   end
 
   # просто что бы вызывать одним методом из main, не усложняя там код
@@ -55,7 +53,7 @@ class Train
   end
 
   def self.find(number)
-    all.select{ |t| t.number == number }.first
+    all.select { |t| t.number == number }.first
   end
 
   protected
@@ -63,7 +61,7 @@ class Train
   # метод обязует переопределять его в дочерних классах
   # однозначно protected
   def wagon_class
-    raise "class not defined!"
+    raise 'class not defined!'
   end
 
   def wagons_action
@@ -72,6 +70,7 @@ class Train
   end
 
   private
+
   # продублирован в этом файле просто для примера, по скольку это относится
   # к текущему уроку
   #

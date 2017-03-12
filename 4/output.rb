@@ -3,7 +3,6 @@ class Output
   # дополняет строку, вызывая к ним инфометоды на каждой строке,
   # представляет в виде ровной таблички
   def self.indexed_list(collection, *info_methods)
-  # def print_indexed_list(collection, *info_methods)
     rows = []
     collection.each_with_index do |item, i|
       row = [" [#{i + 1}] "]
@@ -12,7 +11,7 @@ class Output
       rows << row
     end
     max_len = max_length_of_columns(rows)
-    puts rows.map{ |a| a.map.with_index{ |s, i| s.ljust max_len[i] } * ' ' }
+    puts rows.map { |a| a.map.with_index { |s, i| s.ljust max_len[i] } * ' ' }
   end
 
   private

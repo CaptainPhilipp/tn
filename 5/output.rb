@@ -12,7 +12,7 @@ class Output
         rows << row
       end
       max_len = max_length_of_columns(rows)
-      puts rows.map{ |a| a.map.with_index{ |s, i| s.ljust max_len[i] } * ' ' }
+      puts rows.map { |a| a.map.with_index { |s, i| s.ljust max_len[i] } * ' ' }
     end
 
     private
@@ -28,5 +28,5 @@ class Output
       end
       max_len
     end
-  end
+  end # self
 end

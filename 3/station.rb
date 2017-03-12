@@ -13,7 +13,7 @@ module Trailroad
     end
 
     def train_incoming(train)
-      raise "Wrong argument" unless train.is_a? Train
+      raise 'Wrong argument' unless train.is_a? Train
       @trains << train
     end
 
@@ -27,7 +27,7 @@ module Trailroad
 
     # список поездов на станции по типу: кол-во грузовых, пассажирских
     def trains_by_type(type)
-      @trains.select{ |t| t.type == type }
+      @trains.select { |t| t.type == type }
     end
   end # Station
 end

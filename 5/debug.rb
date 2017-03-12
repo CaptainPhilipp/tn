@@ -7,7 +7,7 @@ module Debug
 
   module ClassMethods
     def debug(*args)
-      log = args.reject{ |a| a.is_a? Symbol }.first
+      log = args.reject { |a| a.is_a? Symbol }.first
       puts ' >> DEBUG: ' + (log.is_a?(String) ? log : log.inspect)
 
       gets                        if args.include? :pause
@@ -20,5 +20,4 @@ module Debug
       self.class.debug(*args)
     end
   end
-
 end

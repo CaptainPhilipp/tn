@@ -6,9 +6,10 @@ class Wagon
   def initialize
     register_instance
   end
+
   # метод для переопределения
   # будет вызываться другими классами
   def action
-    raise NotImplementedError, "Wagon class is not defined!"
+    raise NotImplementedError, 'Wagon class is not defined!'
   end
 end

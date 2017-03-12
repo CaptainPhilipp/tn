@@ -1,0 +1,69 @@
+#
+# Static
+#
+
+# 'w' вместо ?w
+Style/CharacterLiteral:
+  Exclude:
+    - '*/*.rb'
+
+# русские коменты
+Style/AsciiComments:
+  Enabled: false
+
+# документация перед классом
+Style/Documentation:
+  Enabled: false
+
+# &:symbol похоже на `бинарный &` => заменить :met на 'met'
+Lint/AmbiguousOperator:
+  Exclude:
+    - '*/*.rb'
+
+# Длина строки
+Metrics/LineLength:
+  Max: 152
+
+# присваивание после if/unless
+# somethink unless var = method
+Lint/AssignmentInCondition:
+  Exclude:
+    - '*/*.rb'
+
+# заменить классовые на класс-инстанс переменные
+Style/ClassVars:
+  Exclude:
+    - '*/*.rb'
+
+
+
+
+#
+# For current project
+#
+
+# why?
+#   useless private
+Lint/UselessAccessModifier:
+  Exclude:
+    - '4/output.rb'
+
+# useless private, требует class << self
+Lint/IneffectiveAccessModifier:
+  Exclude:
+    - '4/output.rb'
+
+# использование eval - рисковано
+Security/Eval:
+  Exclude:
+    - '5/debug.rb'
+
+
+# # What is that?
+# # too many arguments, or?
+Metrics/AbcSize:
+  Max: 23
+
+# Слишком длинный класс (более 100 строк)
+Metrics/ClassLength:
+  Max: 114

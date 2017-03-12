@@ -9,20 +9,21 @@
 # то дополнительно выводится информация о том,
 # что треугольник еще и равнобедренный.
 
-puts "Введите длины трех сторон треугольника через пробел"
+puts 'Введите длины трех сторон треугольника через пробел'
 sides = gets.chomp.split(' ').map(&:to_f).reject { |x| x <= 0 }
-raise "Неверные данные: введены буквы, или цифры <= 0" unless sides.size == 3
+raise 'Неверные данные: введены буквы, или цифры <= 0' unless sides.size == 3
 a, b, c = sides.sort
 
 def equality(count, *sides)
   # треугольник равносторонний != равнобедренный, потому '=='. иначе '>='
-  sides.each { |a| return true if sides.count{ |x| x == a } == count }; false
+  sides.each { |a| return true if sides.count { |x| x == a } == count }
+  false
 end
 
 properties = []
-properties << " прямоугольный"  if a**2 + b**2 == c**2
-properties << " равнобедренный" if equality 2, a, b, c
-properties << " равносторонний" if equality 3, a, b, c
+properties << ' прямоугольный'  if a**2 + b**2 == c**2
+properties << ' равнобедренный' if equality 2, a, b, c
+properties << ' равносторонний' if equality 3, a, b, c
 
 puts "Это#{properties * ','} треугольник"
 puts 'Совершенно точно.' if properties.empty?
