@@ -1,24 +1,17 @@
 module Debug
   # переопределение метода
-  def self.included(base)
-    base.extend ClassMethods
-    base.include InstanceMethods
+  def self.included(clas)
+    clas.extend ClassMethods
+    clas.include InstanceMethods
   end
 
   module ClassMethods
     def debug(*args)
-      options = args.delete_if { |o| o.is_a? Symbol }
-      log = args.first
-      puts '>> DEBUG: ' + (log.is_a?(String) ? log : log.inspect)
-      pause_or_eval if options.include?(:pause)
-    end
+      log = args.reject{ |a| a.is_a? Symbol }.first
+      puts ' >> DEBUG: ' + (log.is_a?(String) ? log : log.inspect)
 
-    private
-
-    def pause_or_eval
-      puts ">> PAUSE. Input #{eval_keys} for call eval"
-      recieved = gets.chomp.strip
-      eval(recieved) unless recieved.empty?
+      gets                        if args.include? :pause
+      puts eval(gets.chomp.strip) if args.include? :eval
     end
   end
 

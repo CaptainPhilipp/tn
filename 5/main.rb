@@ -14,6 +14,7 @@ require_relative 'passenger_wagon'
 require_relative 'output'
 
 class Application
+  include Debug
 
   ABORT_KEYS = ['q', 'й', nil]
 

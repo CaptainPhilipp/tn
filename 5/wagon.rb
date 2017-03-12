@@ -1,4 +1,5 @@
 class Wagon
+  include Debug
   include InstanceCounter
   include Manufacture
 

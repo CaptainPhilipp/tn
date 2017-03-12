@@ -6,8 +6,6 @@ module InstanceCounter
     # можно вызвать из конструктора
     # не публичный
 
-  @@instances_count = 0
-
   # сработает только с классами, где initialize не определен,
   # потому дя очевидности уберу отсюда
   # def initialize
@@ -15,18 +13,15 @@ module InstanceCounter
   #   super
   # end
 
-  def instances
-    self.instances
-  end
+  @@instances = 0
 
   def self.instances
-    @@instances_count
+    @@instances
   end
 
-  # вот тут не уверен: с одной стороны, он для принимающих миксин, с другой стороны - вызывается из самого миксина
-  private
+  protected
 
   def register_instance
-    @@instances_count += 1
+    @@instances += 1
   end
 end
