@@ -8,6 +8,8 @@ class Train
   @@all = []
 
   def initialize(number, max_speed = MAX_SPEED)
+    register_instance
+    
     @number    = number
     @wagons    = []
     @max_speed = max_speed

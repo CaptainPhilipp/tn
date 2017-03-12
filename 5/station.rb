@@ -6,6 +6,8 @@ class Station
   @@all = []
 
   def initialize(name)
+    register_instance
+
     @name = name
     @trains = []
     @@all << self

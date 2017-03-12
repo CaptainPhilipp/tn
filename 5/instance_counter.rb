@@ -8,10 +8,12 @@ module InstanceCounter
 
   @@instances_count = 0
 
-  def initialize
-    register_instance
-    super # не был уверен что сработает super, тк думал что будет просто переопределение метода, а супер вызывает родителя
-  end
+  # сработает только с классами, где initialize не определен,
+  # потому дя очевидности уберу отсюда
+  # def initialize
+  #   register_instance
+  #   super
+  # end
 
   def instances
     self.instances
