@@ -4,7 +4,7 @@ class Train
   include Manufacture
   attr_reader :number, :type, :wagons, :speed, :max_speed, :current_station
   MAX_SPEED = 120
-  @@all = []
+  @@all = {}
 
   def initialize(number, max_speed = MAX_SPEED)
     register_instance
@@ -15,7 +15,7 @@ class Train
     @current_station = nil
 
     @speed = 0
-    @@all << self
+    @@all[number] = self
   end
 
   def add_wagon(wagon = nil)
@@ -49,11 +49,11 @@ class Train
   end
 
   def self.all
-    @@all
+    @@all.values
   end
 
   def self.find(number)
-    all.select { |t| t.number == number }.first
+    @@all[number]
   end
 
   protected
