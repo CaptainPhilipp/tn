@@ -31,6 +31,7 @@ class Application
 
   def main_menu
     methods_list = %w(select_station select_train create_station create_train)
+    debug binding
     loop do
       puts "\nГлавное меню\nВведите номер комманды для её вызова"
       Output.indexed_list(methods_list)

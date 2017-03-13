@@ -6,12 +6,26 @@ module Debug
   end
 
   module ClassMethods
+    # with args:
+    # :pause just for pause
+    # String for puts String
+    # binding for eval
     def debug(*args)
-      log = args.reject { |a| a.is_a? Symbol }.first
-      puts ' >> DEBUG: ' + (log.is_a?(String) ? log : log.inspect)
+      bind = args.select{ |a| a.is_a? Binding }.first
+      log  = args.reject { |a|  a.is_a?(Symbol) || a.is_a?(Binding) }.first
 
-      gets                        if args.include? :pause
-      puts eval(gets.chomp.strip) if args.include? :eval
+      log = "EVAL: #{log}" if bind
+      puts ' >> DEBUG ' + (log.is_a?(String) ? log : log.inspect)
+
+      gets if args.include? :pause
+
+      until bind && (input = gets.chomp.strip).empty?
+        begin
+          puts eval(input, bind)
+        rescue => ex
+          puts "ERROR: #{ex}\nEVAL: "
+        end
+      end
     end
   end
 
