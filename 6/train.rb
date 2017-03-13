@@ -45,39 +45,28 @@ class Train
     @current_station = station
   end
 
-  def self.all
-    @@all.values
-  end
+  class << self
+    def all
+      @@all.values
+    end
 
-  def self.find(number)
-    @@all[number]
+    def find(number)
+      @@all[number]
+    end
   end
 
   protected
 
-  # метод обязует переопределять его в дочерних классах
-  # однозначно protected
   def wagon_class
-    raise 'class not defined!'
+    raise NotImplementedError, 'Nested Train class is not defined!'
   end
 
   def wagons_action
-    # @wagons.all { |w| w.action }
     @wagons.each &:action
   end
 
   private
 
-  # продублирован в этом файле просто для примера, по скольку это относится
-  # к текущему уроку
-  #
-  # 1) метод является базовым поведением Train
-  # 2) не будет переопределяться в дочерних классах,
-  # 3) и не вызывается из дочерних классов
-  # потому я бы добавил его в private, хотя
-  # после прослушивания лекции у меня в этом есть сомнения
-  # тем не менее, я считаю логичным именно private в данном случае
-  # а как нужно?
   def stop?
     @speed.zero?
   end

@@ -1,8 +1,5 @@
 require_relative 'instance_counter'
-require_relative 'debug'
 require_relative 'manufacture'
-
-# Pathname.new('./').find { |p| puts p.basename('.rb') if p.extname == '.rb' }
 
 require_relative 'station'
 require_relative 'train'
@@ -126,7 +123,7 @@ class Application
     Train.all.each { |train| train.allocate Station.all.sample }
   end
 
-  private # потому что наследников нет.
+  private
 
   def gets_choose_train_type
     puts "\nВыберите тип поезда"
@@ -172,5 +169,4 @@ app.seed trains: 15, stations: 10, wagons: 30
 
 app.main_menu
 
-# puts InstanceCounter.instances № уже работать не будет. вечером попробую сделать так чтоб работало
-puts Wagon.instances.inspect
+puts PassengerWagon.instances.inspect
