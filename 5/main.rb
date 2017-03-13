@@ -1,5 +1,4 @@
 require_relative 'instance_counter'
-require_relative 'debug'
 require_relative 'manufacture'
 
 # Pathname.new('./').find { |p| puts p.basename('.rb') if p.extname == '.rb' }
