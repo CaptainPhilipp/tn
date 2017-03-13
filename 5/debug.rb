@@ -1,8 +1,8 @@
 module Debug
   # переопределение метода
-  def self.included(klas)
-    klas.extend ClassMethods
-    klas.include InstanceMethods
+  def self.included(klass)
+    klass.extend ClassMethods
+    klass.include InstanceMethods
   end
 
   module ClassMethods
