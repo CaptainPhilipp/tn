@@ -10,7 +10,7 @@ class Station
 
     @name = name
     @trains = []
-    self.class.all << self
+    self.class.all << self # забавное наблюдение: метод `<<` для инст класс перемеменной есть, а `=` - нет
   end
 
   def train_incoming(train)
