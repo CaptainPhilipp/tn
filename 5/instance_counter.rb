@@ -1,28 +1,18 @@
 module InstanceCounter
   def self.included(klass)
     klass.extend ClassMethods
-    klass.include InstanceMethods
+    klass.prepend InstanceMethods
   end
-  
+
   module ClassMethods
-    @instances = 0
-    
-    def instances
-      @instances
-    end
-    
-    protected
-    
-    def register_instance
-      @instances += 1
-    end
+    attr_accessor :instances
   end
 
   module InstanceMethods
-    protected
-    
-    def register_instance
-      self.class.register_instance
+    def initialize(*args)
+      self.class.instances ||= 0
+      self.class.instances  += 1
+      super
     end
   end # InstanceMethods
 end

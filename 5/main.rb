@@ -14,8 +14,6 @@ require_relative 'passenger_wagon'
 require_relative 'output'
 
 class Application
-  include Debug
-
   ABORT_KEYS = ['q', 'й', nil].freeze
 
   TRAIN_TYPES = %w(CargoTrain PassengerTrain).freeze
@@ -31,7 +29,6 @@ class Application
 
   def main_menu
     methods_list = %w(select_station select_train create_station create_train)
-    debug binding
     loop do
       puts "\nГлавное меню\nВведите номер комманды для её вызова"
       Output.indexed_list(methods_list)
@@ -176,7 +173,4 @@ app.seed trains: 15, stations: 10, wagons: 30
 app.main_menu
 
 # puts InstanceCounter.instances № уже работать не будет. вечером попробую сделать так чтоб работало
-puts Station.instances
-puts Train.instances
-puts Wagon.instances
-
+puts Wagon.instances.inspect

@@ -1,16 +1,13 @@
 class Station
-  include Debug
   include InstanceCounter
   attr_reader :trains, :name
 
   @all = []
 
   def initialize(name)
-    register_instance
-
     @name = name
     @trains = []
-    self.class.all << self # забавное наблюдение: метод `<<` для инст класс перемеменной есть, а `=` - нет
+    self.class.all << self
   end
 
   def train_incoming(train)
@@ -18,7 +15,7 @@ class Station
     @trains << train
   end
 
-  alias new_train train_incoming # как полагается удобнее располагать алиасы?
+  alias new_train train_incoming
 
   def train_departure(train)
     @trains.delete(train)
@@ -26,17 +23,16 @@ class Station
 
   alias remove_train train_departure
 
-  # тупо что бы вызывать одним методом из main, не усложняя там код
+  # просто что бы вызывать одним методом из Output, не усложняя там код
   def trains_count
     @trains.size
   end
 
-  # список поездов на станции по типу: кол-во грузовых, пассажирских
   def trains_by_type(type)
     @trains.select { |t| t.type == type }
   end
 
-  def self.all
-    @all
+  class << self
+    attr_reader :all
   end
 end # Station

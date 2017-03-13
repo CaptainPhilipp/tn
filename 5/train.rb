@@ -1,5 +1,4 @@
 class Train
-  include Debug
   include InstanceCounter
   include Manufacture
   attr_reader :number, :type, :wagons, :speed, :max_speed, :current_station
@@ -7,8 +6,6 @@ class Train
   @@all = {}
 
   def initialize(number, max_speed = MAX_SPEED)
-    register_instance
-
     @number    = number
     @wagons    = []
     @max_speed = max_speed
