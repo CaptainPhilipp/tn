@@ -175,4 +175,8 @@ app.seed trains: 15, stations: 10, wagons: 30
 
 app.main_menu
 
-puts InstanceCounter.instances
+# puts InstanceCounter.instances № уже работать не будет. вечером попробую сделать так чтоб работало
+puts Station.instances
+puts Train.instances
+puts Wagon.instances
+
