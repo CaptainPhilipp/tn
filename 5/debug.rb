@@ -11,6 +11,8 @@ module Debug
     # String for puts String
     # binding for eval
     def debug(*args)
+      
+      # TODO: #find
       bind = args.select{ |a| a.is_a? Binding }.first
       log  = args.reject { |a|  a.is_a?(Symbol) || a.is_a?(Binding) }.first
 
