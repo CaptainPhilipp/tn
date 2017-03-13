@@ -19,13 +19,20 @@ module Debug
 
       gets if args.include? :pause
 
+      # тут какая-то фигня с присвоением в условии, когда юзается однострочный вариант цикла
+      # так что обычный вариант. только кажется что-то я накосячил с самим условием, хотя работало как ожидал.
+      # TODO: поправить условие
       until bind && (input = gets.chomp.strip).empty?
-        begin
-          puts eval(input, bind)
-        rescue => ex
-          puts "ERROR: #{ex}\nEVAL: "
-        end
+        run_eval 
       end
+    end
+    
+    private
+    
+    def run_eval
+      puts eval(input, bind)
+    rescue => ex
+      puts "ERROR: #{ex}\nEVAL: "
     end
   end
 
