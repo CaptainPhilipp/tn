@@ -113,8 +113,8 @@ class Application
     puts "#{train.class}##{train.number} moved to #{station.name}"
   end
 
-  def seed(trains: 5, stations: 10, wagons: 8)
-    trains.times { TRAIN_CLASSES[rand 2].new(1000 + rand(8999)) }
+  def seed(trains: 5, stations: 10, wagons: 8, num_length: 4)
+    trains.times { TRAIN_CLASSES[rand 2].new(Train.generate_num num_length) }
     Train.all.each { |t| rand(wagons).times { t.add_wagon } }
 
     alphabet = (?A..?Z).to_a.shuffle
@@ -165,8 +165,6 @@ end
 
 app = Application.new
 
-app.seed trains: 15, stations: 10, wagons: 30
+app.seed trains: 15, stations: 10, wagons: 30, num_length: 5
 
 app.main_menu
-
-puts PassengerWagon.instances.inspect

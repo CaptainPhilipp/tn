@@ -1,12 +1,15 @@
 class Station
   include InstanceCounter
   attr_reader :trains, :name
+  STRING_LENGTH = (3..20)
 
   @all = []
 
   def initialize(name)
     @name = name
     @trains = []
+
+    validate!
     self.class.all << self
   end
 
@@ -32,7 +35,22 @@ class Station
     @trains.select { |t| t.type == type }
   end
 
+  def valid?
+    validate!
+  rescue
+    false
+  end
+
   class << self
     attr_reader :all
+  end
+
+  protected
+
+  def validate!
+    raise 'Name must be String' unless @name.is_a? String
+    raise "Name must have length #{STRING_LENGTH}" unless STRING_LENGTH.cover?(@name.size)
+    raise 'Wrong station objects' unless @trains.empty? || @trains.all? { |s| s.is_a? Train }
+    true
   end
 end # Station

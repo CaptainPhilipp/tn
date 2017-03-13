@@ -3,6 +3,6 @@ class Wagon
   include Manufacture
 
   def action
-     raise NotImplementedError, 'Nested Wagon class is not defined!'
+    raise NotImplementedError, 'Nested Wagon class is not defined!'
   end
 end
