@@ -37,7 +37,7 @@ class Station
 
   def valid?
     validate!
-  rescue
+  rescue InvalidData
     false
   end
 
@@ -48,9 +48,8 @@ class Station
   protected
 
   def validate!
-    raise 'Name must be String' unless @name.is_a? String
-    raise "Name must have length #{STRING_LENGTH}" unless STRING_LENGTH.cover?(@name.size)
-    raise 'Wrong station objects' unless @trains.empty? || @trains.all? { |s| s.is_a? Train }
+    raise InvalidData, "Name must have length #{STRING_LENGTH}" unless STRING_LENGTH.cover?(@name.size)
+    raise InvalidData, 'Wrong station objects' unless @trains.empty? || @trains.all? { |s| s.is_a? Train }
     true
   end
 end # Station
