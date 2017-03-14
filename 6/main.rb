@@ -10,6 +10,8 @@ require_relative 'cargo_wagon'
 require_relative 'passenger_wagon'
 require_relative 'output'
 
+class InvalidData < Exception; end
+
 class Application
   ABORT_KEYS = ['q', 'й', nil].freeze
 
@@ -38,6 +40,9 @@ class Application
     puts "\nВведите имя станции"
     return unless name = gets_nilable
     Station.new(name)
+  rescue InvalidData => ex # TODO: custom exception
+    puts ex.inspect
+    retry
   end
 
   def create_train
@@ -46,9 +51,12 @@ class Application
 
     return unless split = gets_splited
 
-    args  = split.map(&:to_i)
+    args  = split.map(&:to_i) # TODO: to_i уже не подходит из за нового формата номера
     train = constant.new(*args)
     print "\n Создан #{train.class}##{train.number}, max speed: #{train.max_speed}"
+  rescue InvalidData => ex # TODO: custom exception
+    puts ex.inspect
+    retry
   end
 
   def select_station
@@ -137,7 +145,7 @@ class Application
     puts "\nИнформация о поезде"
     puts "\n Number: `#{train.number}`, type: `#{train.class}`, " \
          "max_speed: `#{train.max_speed}` wagons: `#{train.wagons.size}`"
-    puts "  location: `#{train.current_station}`"
+    puts "  location: `#{train.current_station.name}`"
   end
 
   def gets_object(collection)
