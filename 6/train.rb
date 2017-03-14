@@ -49,7 +49,7 @@ class Train
 
   def valid?
     validate!
-  rescue
+  rescue InvalidData
     false
   end
 
@@ -72,10 +72,10 @@ class Train
   protected
 
   def validate!
-    raise 'Number format wrong'   if     @number !~ NUMBER_PATTERN
-    raise 'Max speed not Integer' unless @max_speed.is_a? Integer
-    raise 'Station wrong object'  unless @current_station.nil? || @current_station.is_a?(Station)
-    raise 'Wrong wagons objects'  unless @wagons.empty? || @wagons.all? { |s| s.is_a? Wagon }
+    raise InvalidData, 'Number format wrong'   if @number !~ NUMBER_PATTERN
+    raise InvalidData, 'Max speed <= 0'        if @max_speed <= 0
+    # raise InvalidData, 'Station wrong object'  unless @current_station.nil? || @current_station.is_a?(Station)
+    # raise InvalidData, 'Wrong wagons objects'  unless @wagons.empty? || @wagons.all? { |s| s.is_a? Wagon }
     true
   end
 
