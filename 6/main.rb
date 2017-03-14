@@ -40,7 +40,7 @@ class Application
     puts "\nВведите имя станции"
     return unless name = gets_nilable
     Station.new(name)
-  rescue InvalidData => ex # TODO: custom exception
+  rescue InvalidData => ex
     puts ex.inspect
     retry
   end
@@ -50,9 +50,9 @@ class Application
     puts "\nВведите номер поезда, и опционально, его максимальную скорость"
 
     return unless split = gets_splited
-
-    args  = split.map(&:to_i) # TODO: to_i уже не подходит из за нового формата номера
-    train = constant.new(*args)
+    numder, max_speed = split
+    
+    train = constant.new(numder, max_speed.to_i)
     print "\n Создан #{train.class}##{train.number}, max speed: #{train.max_speed}"
   rescue InvalidData => ex # TODO: custom exception
     puts ex.inspect
