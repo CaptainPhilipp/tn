@@ -50,11 +50,10 @@ class Application
     puts "\nВведите номер поезда, и опционально, его максимальную скорость"
 
     return unless split = gets_splited
-    numder, max_speed = split
-    
-    train = constant.new(numder, max_speed.to_i)
+
+    train = constant.new(*split)
     print "\n Создан #{train.class}##{train.number}, max speed: #{train.max_speed}"
-  rescue InvalidData => ex # TODO: custom exception
+  rescue InvalidData => ex
     puts ex.inspect
     retry
   end
