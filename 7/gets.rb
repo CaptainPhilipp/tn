@@ -10,26 +10,25 @@ module Gets
       answer.empty? || ABORT_KEYS.include?(answer) ? nil : answer
     end
 
-    def object(collection)
-      return unless i = index
-      collection[i]
-    end
-
     # splited string
     def splited(delimeter = ' ')
       return unless answer = nilable
       answer.split(delimeter)
     end
 
-    def index(correction: -1, max_size: nil)
+    def index(correction: -1, max_index: nil)
       return unless answer = nilable
-      index  = answer.to_i
-      result = index + correction
-      raise WrongIndex if index && index > max_size
-      result
+      index = answer.to_i
+      raise WrongIndex unless max_index && (1..max_index).cover?(index)
+      index + correction
     rescue WrongIndex
-      puts 'Wrong row number! retry'
-      retry
+      puts 'Cancel (wrong index)'
+      nil
+    end
+
+    def object(collection)
+      return unless i = index(max_index: collection.size)
+      collection[i]
     end
   end
 end

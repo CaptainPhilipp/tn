@@ -20,7 +20,7 @@ class Interface
     loop do
       puts "\nГлавное меню\nВведите номер комманды для её вызова"
       Output.indexed_list(methods_list)
-      return unless index = Gets.index(max_size: methods_list.size)
+      return unless index = Gets.index(max_index: methods_list.size)
       send(methods_list[index])
     end
   end
@@ -29,13 +29,14 @@ class Interface
     puts "\nВведите имя станции"
     return unless name = Gets.nilable
     Station.new(name)
+    puts "\n Создана станция #{name}"
   rescue InvalidData => ex
     puts ex.inspect
     retry
   end
 
   def create_train
-    constant = gets_choose_train_type
+    return unless constant = gets_choose_train_type
     puts "\nВведите номер поезда, и опционально, его максимальную скорость"
 
     return unless split = Gets.splited
@@ -72,7 +73,7 @@ class Interface
     show_train(train)
     loop do
       Output.indexed_list(methods_list)
-      return unless index = Gets.index
+      return unless index = Gets.index(max_index: methods_list.size)
 
       meth = methods_list[index]
       puts "\nВыбран: #{meth}"
@@ -94,8 +95,7 @@ class Interface
   def allocate_train(train)
     puts "\nРазместить поезд"
     Output.indexed_list(Station.all, :name, :trains_count)
-    station = Gets.object(Station.all)
-    return unless station
+    return unless station = Gets.object(Station.all)
 
     train.allocate(station)
     puts "#{train.class}##{train.number} moved to #{station.name}"
@@ -116,8 +116,7 @@ class Interface
   def gets_choose_train_type
     puts "\nВыберите тип поезда"
     Output.indexed_list(TRAIN_TYPES)
-    index = Gets.index
-    return unless index
+    return unless index = Gets.index(max_index: TRAIN_TYPES.size)
     TRAIN_CLASSES[index]
   end
 
