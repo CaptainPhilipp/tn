@@ -8,6 +8,7 @@ class Wagon
     @capacity = capacity.to_i.freeze
     @filled_space = 0
     @number = number
+    validate!
   end
 
   def fill_space(amount)
@@ -28,5 +29,18 @@ class Wagon
 
   def action
     raise NotImplementedError, 'Nested Wagon class is not defined!'
+  end
+
+  def valid?
+    validate!
+  rescue InvalidData
+    false
+  end
+
+  protected
+
+  def validate!
+    raise InvalidData, 'Capacity <= 0' if @capacity <= 0
+    true
   end
 end
