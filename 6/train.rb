@@ -73,9 +73,7 @@ class Train
 
   def validate!
     raise InvalidData, "Number format wrong#{@number}" if @number !~ NUMBER_PATTERN
-    raise InvalidData, 'Max speed <= 0'        if @max_speed && @max_speed <= 0
-    # raise InvalidData, 'Station wrong object'  unless @current_station.nil? || @current_station.is_a?(Station)
-    # raise InvalidData, 'Wrong wagons objects'  unless @wagons.empty? || @wagons.all? { |s| s.is_a? Wagon }
+    raise InvalidData, 'Max speed <= 0' if @max_speed && @max_speed <= 0
     true
   end
 

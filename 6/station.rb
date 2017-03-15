@@ -49,7 +49,6 @@ class Station
 
   def validate!
     raise InvalidData, "Name must have length #{STRING_LENGTH}" unless STRING_LENGTH.cover?(@name.size)
-    # raise InvalidData, 'Wrong station objects' unless @trains.empty? || @trains.all? { |s| s.is_a? Train }
     true
   end
 end # Station
