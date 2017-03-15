@@ -1,7 +1,7 @@
 require_relative 'gets'
 require_relative 'output'
 
-class InvalidData < Exception; end
+class InvalidData < RuntimeError; end
 
 class Interface
   TRAIN_TYPES = %w(CargoTrain PassengerTrain).freeze
@@ -38,7 +38,6 @@ class Interface
   def create_train
     return unless train_class = gets_choose_train_type
     puts "\nВведите номер поезда, и опционально, его максимальную скорость"
-
     return unless split = Gets.splited
 
     train = train_class.new(*split)
@@ -53,7 +52,6 @@ class Interface
       puts "\nВведите id станции"
       Output.indexed_list(Station.all, :name, :trains_count)
       return unless station = Gets.object(Station.all)
-
       select_station_trains(station)
     end
   end
@@ -83,7 +81,6 @@ class Interface
 
   def add_wagons(train)
     puts "\nВведите номер и вместительность вагона"
-
     return unless split = Gets.splited
     wagon = train.create_wagon(*split)
     Output.wagon_changes(:added, wagon, train)
@@ -93,10 +90,10 @@ class Interface
   end
 
   def select_wagon(train)
-    Output.indexed_list(train.wagons, :number, :class, :available_space, :filled_space)
-    # train.each_wagon do |w|
-    #   puts "#{w.class} #{w.number} filled: #{w.filled_space} available: #{w.available_space}"
-    # end
+    train.each_wagon do |w, i|
+      puts " [#{i + 1}] #{w.class} #{w.number} filled: #{w.filled_space} available: #{w.available_space}"
+    end
+    # Output.indexed_list(train.wagons, :number, :class, :available_space, :filled_space)
     return unless index = Gets.index(max_index: train.wagons.size)
     action_wagon(train.wagons[index])
   end

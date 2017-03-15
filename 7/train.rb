@@ -38,7 +38,7 @@ class Train
   end
 
   def each_wagon
-    @wagons.each { |wagon| yield wagon }
+    @wagons.each_with_index { |wagon, index| yield wagon, index }
   end
 
   def location

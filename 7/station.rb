@@ -36,7 +36,7 @@ class Station
   end
 
   def each_train
-    @trains.each { |train| yield train }
+    @trains.each_with_index { |train, index| yield train, index }
   end
 
   def valid?

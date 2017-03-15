@@ -1,4 +1,4 @@
-class WrongIndex < Exception; end
+class WrongIndex < RuntimeError; end
 
 module Gets
   ABORT_KEYS = ['q', 'й', nil].freeze
