@@ -34,6 +34,10 @@ class Train
     wagons.size
   end
 
+  def each_wagon
+    @wagons.each { |wagon| yield wagon }
+  end
+
   def location
     current_station.name
   end

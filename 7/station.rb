@@ -35,6 +35,10 @@ class Station
     @trains.select { |t| t.type == type }
   end
 
+  def each_train
+    @trains.each { |train| yield train }
+  end
+
   def valid?
     validate!
   rescue InvalidData
