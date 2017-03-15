@@ -16,11 +16,23 @@ module Output
     end
 
     def wagon_changes(action, wagon, train)
-      events = {added: 'added to', removed: 'removed from'}
-      event = events[key]
-
-      puts "#{wagon.class} #{event} the #{train.class}"
+      event = {added: 'added to', removed: 'removed from'}[action]
+      puts "#{wagon.class} with capacity #{wagon.capacity} #{event} the #{train.class}"
       puts "#{train.class} number #{train.number} have #{train.wagons.size} wagons"
+    end
+
+    def wagon_capacity_changes(action, wagon, amount)
+      case wagon
+      when CargoWagon
+        event = {load: 'loaded', unload: 'unloaded'}[action]
+        puts "\nWagon #{event} by #{amount}. " \
+        "available: #{wagon.available_space}, filled: #{wagon.filled_space}"
+      when PassengerWagon
+        event = {load: 'boarded', unload: 'leave'}[action]
+        puts "\n#{amount} passengers #{event} wagon. " \
+        "free: #{wagon.available_space}, passengers: #{wagon.filled_space}"
+      end
+      puts
     end
 
     private

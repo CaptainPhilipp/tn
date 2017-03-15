@@ -17,11 +17,14 @@ class Train
     @@all[@number] = self
   end
 
-  def add_wagon(wagon = nil)
-    return false unless stop? && (wagon.nil? || wagon.is_a?(wagon_class))
-    wagon = wagon_class.new if wagon.nil?
+  def add_wagon(wagon)
+    return false unless stop? && wagon.is_a?(wagon_class)
     @wagons << wagon
     wagon
+  end
+
+  def create_wagon(*args)
+    add_wagon(wagon_class.new *args)
   end
 
   def remove_wagon(count = 1)

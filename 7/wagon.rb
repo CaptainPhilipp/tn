@@ -2,21 +2,22 @@ class Wagon
   include InstanceCounter
   include Manufacture
 
-  attr_reader :capacity, :filled_space
+  attr_reader :number, :capacity, :filled_space
 
-  def initialize(capacity = 0)
-    @capacity = capacity.freeze
+  def initialize(number, capacity = 0)
+    @capacity = capacity.to_i.freeze
     @filled_space = 0
+    @number = number
   end
 
   def fill_space(amount)
-    amount = [amount, @capacity].min
+    amount = [available_space, amount.abs].min
     @filled_space += amount
     amount
   end
 
   def release_space(amount)
-    amount = [0, amount].min
+    amount = [filled_space, amount.abs].min
     @filled_space -= amount
     amount
   end

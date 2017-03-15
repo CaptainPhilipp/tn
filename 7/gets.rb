@@ -16,14 +16,19 @@ module Gets
       answer.split(delimeter)
     end
 
-    def index(correction: -1, max_index: nil)
+    def index(max_index: nil)
       return unless answer = nilable
       index = answer.to_i
       raise WrongIndex unless max_index && (1..max_index).cover?(index)
-      index + correction
+      index - 1
     rescue WrongIndex
       puts 'Cancel (wrong index)'
       nil
+    end
+
+    def integer
+      return unless answer = nilable
+      answer.to_i
     end
 
     def object(collection)
