@@ -1,4 +1,4 @@
-class Output
+module Output
   class << self
     # показывает элементы коллекции построчно
     # дополняет строку, вызывая к ним инфометоды на каждой строке,
@@ -13,6 +13,14 @@ class Output
       end
       max_len = max_length_of_columns(rows)
       puts rows.map { |a| a.map.with_index { |s, i| s.ljust max_len[i] } * ' ' }
+    end
+
+    def wagon_changes(action, wagon, train)
+      events = {added: 'added to', removed: 'removed from'}
+      event = events[key]
+
+      puts "#{wagon.class} #{event} the #{train.class}"
+      puts "#{train.class} number #{train.number} have #{train.wagons.size} wagons"
     end
 
     private
