@@ -52,7 +52,9 @@ class Station
   protected
 
   def validate!
-    raise InvalidData, "Name must have length #{STRING_LENGTH}" unless STRING_LENGTH.cover?(@name.size)
+    unless STRING_LENGTH.cover?(@name.size)
+      raise InvalidData, "Name must have length #{STRING_LENGTH}"
+    end
     true
   end
 end # Station

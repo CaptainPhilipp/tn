@@ -2,7 +2,7 @@ class Train
   include InstanceCounter
   include Manufacture
   attr_reader :number, :wagons, :speed, :max_speed, :current_station
-  NUMBER_PATTERN = /\A[a-z\d]{3}-?[a-z\d]{2}\z/i
+  NUM_PATTERN = /\A[a-z\d]{3}-?[a-z\d]{2}\z/i
   MAX_SPEED = 120
   @@all = {}
 
@@ -24,7 +24,7 @@ class Train
   end
 
   def create_wagon(*args)
-    add_wagon(wagon_class.new *args)
+    add_wagon(wagon_class.new(*args))
   end
 
   def remove_wagon(count = 1)
@@ -79,7 +79,7 @@ class Train
   protected
 
   def validate!
-    raise InvalidData, "Number format wrong#{@number}" if @number !~ NUMBER_PATTERN
+    raise InvalidData, "Number format wrong#{@number}" if @number !~ NUM_PATTERN
     raise InvalidData, 'Max speed <= 0' if @max_speed && @max_speed <= 0
     true
   end
@@ -89,7 +89,7 @@ class Train
   end
 
   def wagons_action
-    @wagons.each &:action
+    @wagons.each(&:action)
   end
 
   private

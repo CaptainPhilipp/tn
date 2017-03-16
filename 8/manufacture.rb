@@ -1,14 +1,15 @@
 module Manufacture
-  MANUFACTURE_PATTERN = /[\w\s-]+/
-  def included(klass) # что бы небыло лишней путаницы каким методом какой модуль подключать
+  PATTERN = /[\w\s-]+/
+  def included(klass) # что бы небыло лишней путаницы каким методом подключать
     klass.prepend self
   end
 
   attr_accessor :manufacture
 
-  def validate! # обертка для суперметода из класса, к которому подвешивается модуль
+  def validate! # обертка для суперметода из класса
     super
-    raise InvalidData, 'Wrong format' unless manufacture.nil? || manufacture =~ MANUFACTURE_PATTERN
+    text = 'Wrong format'
+    raise InvalidData, text unless manufacture.nil? || manufacture =~ PATTERN
     true
   end
 end

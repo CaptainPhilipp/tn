@@ -13,13 +13,13 @@ class Wagon
 
   def fill_space(amount)
     amount = [available_space, amount.abs].min
-    @filled_space += amount
+    @filled_space += convert(amount)
     amount
   end
 
   def release_space(amount)
     amount = [filled_space, amount.abs].min
-    @filled_space -= amount
+    @filled_space -= convert(amount)
     amount
   end
 
@@ -37,7 +37,12 @@ class Wagon
     false
   end
 
-  protected
+  private
+
+  # для переопределения в наследных классах
+  def convert(amount)
+    amount
+  end
 
   def validate!
     raise InvalidData, 'Capacity <= 0' if @capacity <= 0

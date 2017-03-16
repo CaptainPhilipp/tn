@@ -11,9 +11,8 @@ require_relative 'cargo_wagon'
 require_relative 'passenger_wagon'
 
 require_relative 'interface'
+require_relative 'seed'
 
-app = Interface.new
+Seed.seed trains: 15, stations: 10, wagons: 30, num_length: 5
 
-app.seed trains: 15, stations: 10, wagons: 30, num_length: 5
-
-app.main_menu
+Interface.main_menu

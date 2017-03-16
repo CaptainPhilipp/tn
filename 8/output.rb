@@ -4,21 +4,17 @@ module Output
     # дополняет строку, вызывая к ним инфометоды на каждой строке,
     # представляет в виде ровной таблички
     def indexed_list(collection, *info_methods)
-      rows = []
-      collection.each_with_index do |item, i|
-        row = [" [#{i + 1}] "]
-        info_methods.each { |method| row << "#{method}: `#{item.send(method)}`" }
-        row.insert(1, item) if row.size == 1 && item.is_a?(String)
-        rows << row
-      end
+      rows    = build_rows(collection, *info_methods)
       max_len = max_length_of_columns(rows)
       puts rows.map { |a| a.map.with_index { |s, i| s.ljust max_len[i] } * ' ' }
     end
 
     def wagon_changes(action, wagon, train)
       event = { added: 'added to', removed: 'removed from' }[action]
-      puts "#{wagon.class} with capacity #{wagon.capacity} #{event} the #{train.class}"
-      puts "#{train.class} number #{train.number} have #{train.wagons.size} wagons"
+      puts "#{wagon.class} with capacity #{wagon.capacity}" \
+           "#{event} the #{train.class}"
+      puts "#{train.class} number #{train.number}" \
+           "have #{train.wagons.size} wagons"
     end
 
     def wagon_capacity_changes(action, wagon, amount)
@@ -35,6 +31,17 @@ module Output
     end
 
     private
+
+    def build_rows(collection, *info_methods)
+      rows = []
+      collection.each_with_index do |item, i|
+        row = [" [#{i + 1}] "]
+        info_methods.each { |meth| row << "#{meth}: `#{item.send(meth)}`" }
+        row.insert(1, item) if row.size == 1 && item.is_a?(String)
+        rows << row
+      end
+      rows
+    end
 
     # считает максимальную длину каждого столбца
     def max_length_of_columns(rows)
