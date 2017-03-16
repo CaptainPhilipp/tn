@@ -1,0 +1,59 @@
+# документация классов
+Style/Documentation:
+  Exclude:
+    - '*'
+    - '*/*'
+
+# русские коменты
+Style/AsciiComments:
+  Exclude:
+    - '*'
+    - '*/*'
+
+# назначение в условии (unless a = method)
+# он убежден что я перепутал `=` с `==`, хотя это даже совсем-совсем новички не путают при чтении.
+# 
+# Configuration parameters: AllowSafeAssignment.
+Lint/AssignmentInCondition:
+  Exclude:
+    - '*'
+    - '*/*'
+
+# говорит юзать обозначение одиночного символа `?` - дурной тон.
+# хотя я его юзаю там где он смотрится вполне уместно.
+# ВОПРОС: это плохо?
+Style/CharacterLiteral:
+  Exclude:
+    - 'seed.rb'
+
+# Требует поменять @@ на класс-инстанс, хотя мне нужен именно @@
+Style/ClassVars:
+  Exclude:
+    - 'train.rb'
+
+# требует вставлять скобки в скобки, что бы я мог смотреть внутри скобок пока смотрю внутри скобок
+# не сказал бы что это удобно, красиво и необходимо.
+# мне кажется что some_method(another_method argument) смотрится не хуже чем some_method(another_method(argument))
+# 
+# но много спорить не буду, исправил.
+# Lint/AmbiguousOperator:
+#   Exclude:
+#     - 'train.rb'
+
+
+# 
+# Какая строка лучше выглядит а какая лучше воспринимается?
+# 
+# trains.times { classes[rand 2].new(Train.generate length) }
+# или
+# trains.times { classes[rand(2)].new(Train.generate(length)) }
+# 
+# Больше скобок богу скобок! (не уверен что это реально лучше)
+# но в реальной ситуации был выраженный снэйк кейс, и скобки реально лучше.
+# но без снейка было бы лучше без лишних скобок.
+# Offense count: 2
+# Cop supports --auto-correct.
+# Style/NestedParenthesizedCalls:
+#   Exclude:
+#     - 'interface.rb'
+#     - 'train.rb'
