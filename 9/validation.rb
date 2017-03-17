@@ -1,28 +1,59 @@
+class InvalidData < RuntimeError; end
+class InvalidPresense < InvalidData; end
+class InvalidFormat   < InvalidData; end
+class InvalidType     < InvalidData; end
+
 module Validation
-  # принимает в качестве параметров имя проверяемого атрибута,
-  # а также тип валидации и при необходимости дополнительные параметры
-  #
-  # presence - требует, чтобы значение атрибута было не nil и не пустой строкой.
-  #   validate :name, :presence
-  # format - треубет соответствия значения атрибута заданной регулярке.
-  #   validate :number, :format, /A-Z{0,3}/
-  # type - требует соответствия значения атрибута заданному классу.
-  #   validate :station, :type, RailwayStation
-  def validate(name, type, *args)
-    # class
+  def self.included(klass)
+    klass.include InstanceMethods
+    klass.extend  ClassMethods
   end
 
-  # запускает все проверки (валидации),
-  # указанные в классе через метод класса validate
-  #  В случае ошибки валидации выбрасывает исключение с сообщением о том,
-  # какая именно валидация не прошла
-  def validate!
-    # instance
-  end
+  module InstanceMethods
+    def validate!
+      self.class.validating_tasks.each do |name, task|
+        value = instance_variable_get("@#{name}".to_sym)
+        self.class.send(task.validate_method, name, value, task.option)
+        true
+      end
+    end
 
-  # возвращает true, если все проверки валидации прошли успешно
-  # false, если есть ошибки валидации.
-  def valid?
-    # instance
-  end
+    def valid?
+      validate!
+    rescue InvalidData
+      false
+    end
+  end # includeable
+
+  module ClassMethods
+    ValidateTask = Struct.new :validate_method, :option
+    attr_accessor :validating_tasks
+
+    # validate :var, :presence
+    # validate :var, :format, /regexp/
+    # validate :var, :type,   Class     # or :Class 'Class'
+    def validate(name, type, option = nil)
+      @validating_tasks ||= {}
+      @validating_tasks[name] = ValidateTask.new("validate_#{type}".to_sym, option)
+    end
+    
+    private
+
+    # not nil or empty
+    def validate_presense(name, value, _)
+      return unless value.nil? || (value.respond_to?(:empty?) && value.empty?)
+      puts value.inspect
+      raise InvalidPresense, name
+    end
+
+    # regex
+    def validate_format(name, value, pattern)
+      raise InvalidFormat, name if value !~ pattern
+    end
+
+    # is_a? Type
+    def validate_type(name, value, type)
+      raise InvalidType, name unless value.is_a? type
+    end
+  end # Extendeable
 end
