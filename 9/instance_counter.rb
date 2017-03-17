@@ -5,7 +5,8 @@ module InstanceCounter
   end
 
   module ClassMethods
-    attr_accessor :instances
+    extend Accessors
+    attr_accessor_with_history :instances
   end
 
   module InstanceMethods

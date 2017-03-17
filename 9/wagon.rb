@@ -1,13 +1,16 @@
 class Wagon
   include InstanceCounter
   include Manufacture
+  include Validation
 
   attr_reader :number, :capacity, :filled_space
+
+  validate :number, :format, /\A[a-z\d]{3}-?[a-z\d]{2}\z/i
 
   def initialize(number, capacity = 0)
     @capacity = capacity.to_i.freeze
     @filled_space = 0
-    @number = number
+    @number = number.to_s
     validate!
   end
 
@@ -31,11 +34,11 @@ class Wagon
     raise NotImplementedError, 'Nested Wagon class is not defined!'
   end
 
-  def valid?
-    validate!
-  rescue InvalidData
-    false
-  end
+  # def valid?
+  #   validate!
+  # rescue InvalidData
+  #   false
+  # end
 
   private
 
@@ -44,8 +47,8 @@ class Wagon
     amount
   end
 
-  def validate!
-    raise InvalidData, 'Capacity <= 0' if @capacity <= 0
-    true
-  end
+  # def validate!
+  #   raise InvalidData, 'Capacity <= 0' if @capacity <= 0
+  #   true
+  # end
 end

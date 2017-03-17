@@ -11,7 +11,8 @@ module Validation
 
   module InstanceMethods
     def validate!
-      self.class.validating_tasks.each do |name, task|
+      tasks = self.class.class_variable_get(:@@validating_tasks)
+      tasks.each do |name, task|
         value = instance_variable_get("@#{name}".to_sym)
         self.class.send(task.validate_method, name, value, task.option)
         true
@@ -27,33 +28,42 @@ module Validation
 
   module ClassMethods
     ValidateTask = Struct.new :validate_method, :option
-    attr_accessor :validating_tasks
 
     # validate :var, :presence
     # validate :var, :format, /regexp/
     # validate :var, :type,   Class     # or :Class 'Class'
     def validate(name, type, option = nil)
-      @validating_tasks ||= {}
-      @validating_tasks[name] = ValidateTask.new("validate_#{type}".to_sym, option)
+      task = ValidateTask.new("validate_#{type}".to_sym, option)
+
+      if class_variable_defined?(:@@validating_tasks)
+        tasks = class_variable_get(:@@validating_tasks)
+        tasks[name] = task
+        class_variable_set(:@@validating_tasks, tasks)
+
+      else
+        class_variable_set(:@@validating_tasks, name => task)
+      end
     end
-    
+
     private
 
     # not nil or empty
     def validate_presense(name, value, _)
       return unless value.nil? || (value.respond_to?(:empty?) && value.empty?)
-      puts value.inspect
-      raise InvalidPresense, name
+      raise InvalidPresense, "#{name} is nil or empty (#{value})"
     end
 
     # regex
     def validate_format(name, value, pattern)
-      raise InvalidFormat, name if value !~ pattern
+      return if value =~ pattern
+      raise InvalidFormat, "#{name} has wrong format"
     end
 
     # is_a? Type
     def validate_type(name, value, type)
-      raise InvalidType, name unless value.is_a? type
+      return if value.is_a? type
+
+      raise InvalidType, "#{name} is a #{value.class} not a #{type}"
     end
   end # Extendeable
 end
