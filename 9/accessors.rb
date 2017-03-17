@@ -16,7 +16,7 @@ module Accessors
   def strong_attr_accessor(hash)
     hash.each do |name, klass|
       create_getter(name)
-      klass = klass.is_a?(Class) ? klass : const_get(klass.to_sym)
+      klass = const_get(klass.to_sym) unless klass.is_a?(Class)
       create_setter(name) do |value|
         raise ArgumentError, 'Wrong argument class' unless value.is_a?(klass)
       end
