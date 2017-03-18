@@ -3,11 +3,12 @@ class Train
   include Manufacture
   include Validation
   attr_reader :number, :wagons, :speed, :max_speed, :current_station
-  NUM_PATTERN = /\A[a-z\d]{3}-?[a-z\d]{2}\z/i
+
+  validate :number, /\A[a-z\d]{3}-?[a-z\d]{2}\z/i
+  validate :max_speed, 0, :<=
+
   MAX_SPEED = 120
   @@all = {}
-
-  validate :number, :format, NUM_PATTERN
 
   def initialize(number, max_speed = MAX_SPEED)
     @number    = number.to_s
@@ -45,7 +46,7 @@ class Train
   end
 
   def location
-    current_station.name
+    current_station.name if current_station
   end
 
   def allocate(station)
@@ -56,12 +57,6 @@ class Train
     station.train_incoming(self)
     @current_station = station
   end
-
-  # def valid?
-  #   validate!
-  # rescue InvalidData
-  #   false
-  # end
 
   class << self
     def all
@@ -80,12 +75,6 @@ class Train
   end
 
   protected
-
-  # def validate!
-  #   raise InvalidData, "Number format wrong#{@number}" if @number !~ NUM_PATTERN
-  #   raise InvalidData, 'Max speed <= 0' if @max_speed && @max_speed <= 0
-  #   true
-  # end
 
   def wagon_class
     raise NotImplementedError, 'Nested Train class is not defined!'

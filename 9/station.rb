@@ -1,8 +1,10 @@
 class Station
   include InstanceCounter
+  include Validation
   attr_reader :trains, :name
-  STRING_LENGTH = (3..20)
 
+  validate :name, /\A[\w\d\s-]{3,20}\z/
+  
   @all = []
 
   def initialize(name)
@@ -39,20 +41,7 @@ class Station
     @trains.each_with_index { |train, index| yield train, index }
   end
 
-  def valid?
-    validate!
-  rescue InvalidData
-    false
-  end
-
   class << self
     attr_reader :all
-  end
-
-  protected
-
-  def validate!
-    return true if STRING_LENGTH.cover?(@name.size)
-    raise InvalidData, "Name must have length #{STRING_LENGTH}"
   end
 end # Station
