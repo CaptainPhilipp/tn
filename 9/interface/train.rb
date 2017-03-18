@@ -71,9 +71,10 @@ module Interface
 
       def show_train(train)
         puts "\nИнформация о поезде"
-        puts "\n Number: `#{train.number}`, type: `#{train.class}`, " \
-             "max_speed: `#{train.max_speed}` wagons: `#{train.wagons.size}`" \
-             "location: `#{train.current_station.name}`"
+        print "\n Number: `#{train.number}`, type: `#{train.class}`, " \
+              "max_speed: `#{train.max_speed}` wagons: `#{train.wagons.size}`"
+        print " location: `#{train.current_station.name}`" if train.current_station
+        puts
       end
     end # class << self
   end

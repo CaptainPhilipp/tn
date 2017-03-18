@@ -12,8 +12,10 @@ module Validation
 
   module InstanceMethods
     def validate!
-      tasks = self.class.class_variable_get(:@@validating_tasks)
-      tasks.each { |name, task| duck_type_send(name, task) }
+      tasks_hash = self.class.class_variable_get(:@@validating_tasks)
+      tasks_hash.each do |name, tasks|
+        tasks.each { |task| duck_type_send(name, task) }
+      end
     end
 
     def valid?
@@ -55,7 +57,7 @@ module Validation
 
     def validate_type(name, current_value, task)
       return if current_value.is_a? task[:requirement]
-      raise InvalidType, "#{name} is a #{current_value.class}, not #{task[:type}"
+      raise InvalidType, "#{name} is a #{current_value.class}, not #{task[:requirement]}"
     end
 
     def validate_range(name, current_value, task)
@@ -78,15 +80,16 @@ module Validation
     # validate :var, 0..12    # #cover?
     # validate :var, 10, :<   # "10 sould_be less(<) then @var"
     def validate(name, requirement = nil, argument = nil)
-      task = [requirement: requirement, argument: argument]
+      task = {requirement: requirement, argument: argument}
 
       if class_variable_defined?(:@@validating_tasks)
         tasks = class_variable_get(:@@validating_tasks)
-        tasks[name] = task
+        tasks[name] ||= []
+        tasks[name] << task
         class_variable_set(:@@validating_tasks, tasks)
 
       else
-        class_variable_set(:@@validating_tasks, name => task)
+        class_variable_set(:@@validating_tasks, name => [task])
       end
     end
   end # ClassMethods

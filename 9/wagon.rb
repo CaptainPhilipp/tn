@@ -5,9 +5,12 @@ class Wagon
   attr_reader :number, :capacity, :filled_space
 
   validate :number, /\A[a-z\d]{3}-?[a-z\d]{2}\z/i
+  validate :capacity
   validate :capacity, 1..1000
 
   def initialize(number, capacity = 0)
+  # def initialize(number, capacity = nil)
+  # @capacity = capacity
     @capacity = capacity.to_i.freeze
     @filled_space = 0
     @number = number.to_s
