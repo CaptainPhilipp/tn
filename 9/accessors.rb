@@ -8,18 +8,20 @@ module Accessors
       define_method(name.to_sym) { instance_variable_get(varname) }
 
       # create_history_getter
-      hist_var  = "@#{name}_history".to_sym
+      hist_var = "@#{name}_history".to_sym
       define_method("#{name}_history".to_sym) { instance_variable_get(hist_var) }
 
       # create_history_setter
-      define_method("#{name}=".to_sym) do |value|
-        if instance_variable_defined?(hist_var)
-          history = instance_variable_get(hist_var)
-          instance_variable_set(hist_var, history << value)
-        else
-          instance_variable_set(hist_var, [value])
-        end
+      define_method("#{name}=".to_sym) do |value|        
         instance_variable_set(varname, value)
+        
+        history = 
+          if instance_variable_defined?(hist_var)
+            instance_variable_get(hist_var)
+          else
+            instance_variable_set(hist_var, [])
+          end
+        history << value
       end
     end # names.each do
   end
