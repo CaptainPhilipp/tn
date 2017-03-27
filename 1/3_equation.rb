@@ -6,10 +6,10 @@
 # и выводит значения дискриминанта и корней на экран.
 
 puts 'Введите три коэфициента (a, b и c) через пробел'
-split = gets.chomp
+string = gets.chomp
 
-split = split.split(' ').map { |x| x.tr(',', '.').to_f }
-raise 'Только цифры и пробелы!' unless split =~ /^[0-9\s\.\,]+$/i
+split = string.split(' ').map { |x| x.tr(',', '.').to_f }
+raise 'Только цифры и пробелы!' unless string =~ /^[0-9\s\.\,]+$/i
 raise 'Только три коэффициента!' unless split.size == 3
 raise "'a' не должно быть равно 0" if split.first.zero?
 
