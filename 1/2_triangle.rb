@@ -16,7 +16,7 @@ a, b, c = sides.sort
 
 def equality(count, *sides)
   # треугольник равносторонний != равнобедренный, потому '=='. иначе '>='
-  sides.each { |a| return true if sides.count { |x| x == a } == count }
+  sides.uniq.each { |s| return true if sides.count { |x| x == s } == count }
   false
 end
 
